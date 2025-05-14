@@ -1,9 +1,11 @@
 import {
   configureStore,
   createSlice,
+  type ActionReducerMapBuilder,
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchInitialResults } from "./thunk";
 
 // Types
 type Category = string;
@@ -20,8 +22,9 @@ export interface SceneryItem {
 }
 
 interface Filter {
+  viewSort: "ascending" | "descending";
   categories: Category[];
-  name: string;
+  name?: string;
 }
 
 interface CategoryState {
@@ -51,94 +54,16 @@ export function populateCategories(
   return Object.entries(categoriesMap) as [Category, number][];
 }
 
+let initialMaps: SceneryItem[] = [];
+
 const initialResultsState: ResultsState = {
-  results: [
-    {
-      id: 0,
-      author: "Unknown",
-      title: "Unknown",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 1,
-      author: "Unknown",
-      title: "Unknown",
-      categories: ["Unknown 2"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 2,
-      author: "Unknown",
-      title: "Unknown",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 3,
-      author: "Unknown",
-      title: "Unknown",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 4,
-      author: "Unknown",
-      title: "Unknown",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 5,
-      author: "Unknown",
-      title: "Unknown",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 6,
-      author: "Unknown",
-      title: "Unknown 2",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 7,
-      author: "Unknown",
-      title: "Unknown 2",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 8,
-      author: "Unknown",
-      title: "Unknown 2",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-    {
-      id: 9,
-      author: "Unknown",
-      title: "Unknown 2",
-      categories: ["Unknown"],
-      views: 0,
-      imageUrl: "/placeholder.svg",
-    },
-  ],
+  results: initialMaps,
 };
 
 const initialCategoryState: CategoryState = {
   categories: populateCategories(initialResultsState),
   filter: {
+    viewSort: "descending",
     categories: [],
     name: "",
   },
@@ -184,8 +109,8 @@ const resultsSlice = createSlice({
   name: "results",
   initialState: initialResultsState,
   reducers: {
-    setResults(state, action: PayloadAction<SceneryItem[]>) {
-      state.results = action.payload;
+    setResults(state, action: PayloadAction<ResultsState>) {
+      state.results = action.payload.results;
     },
     clearResults(state) {
       state.results = [];
@@ -195,9 +120,19 @@ const resultsSlice = createSlice({
     },
     removeResultById(state, action: PayloadAction<number>) {
       state.results = state.results.filter(
-        (item) => item.id !== action.payload
+        (item: SceneryItem) => item.id !== action.payload
       );
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchInitialResults.pending, (state) => {})
+      .addCase(fetchInitialResults.fulfilled, (state, action) => {
+        state.results = action.payload;
+      })
+      .addCase(fetchInitialResults.rejected, (state, action) => {
+        console.error("fetchInitialResults failed:", action.error.message);
+      });
   },
 });
 

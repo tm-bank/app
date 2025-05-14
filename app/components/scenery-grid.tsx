@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useAppSelector } from "~/store/store";
+import { API_LINK } from "~/store/thunk";
 
 export interface SceneryItem {
   id: number;
@@ -49,7 +50,7 @@ function SceneryCard({ item }: { item: SceneryItem }) {
     <Card className="overflow-hidden" key={item.id}>
       <div className="relative aspect-[3/2] overflow-hidden">
         <img
-          src={item.imageUrl || "/placeholder.svg"}
+          src={API_LINK + "/image/" + item.imageUrl || "/placeholder.svg"}
           alt={item.title}
           className="object-cover w-full h-full transition-transform hover:scale-105"
         />

@@ -12,9 +12,17 @@ import {
 import { ModeToggle } from "./components/mode-toggle";
 import { useLocation } from "react-router";
 import RootLayout from "./root-layout";
+import { useAppDispatch } from "./store/store";
+import { useEffect } from "react";
+import { fetchInitialResults } from "./store/thunk";
 
 export default function Wrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchInitialResults());
+  }, [dispatch]);
 
   return (
     <RootLayout>

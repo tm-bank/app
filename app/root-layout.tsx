@@ -22,12 +22,10 @@ export default function RootLayout({
   }
 
   return (
-    <Provider store={store}>
-      <ThemeProvider defaultTheme="system">
-        <SidebarProvider>
-          <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
-        </SidebarProvider>
-      </ThemeProvider>
-    </Provider>
+    <ThemeProvider defaultTheme="system">
+      <SidebarProvider>
+        <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 }
