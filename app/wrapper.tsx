@@ -20,7 +20,7 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
     <RootLayout>
       <TrackmaniaSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between border-b px-6">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b px-6 sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-20">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-2" />
             <Breadcrumb>

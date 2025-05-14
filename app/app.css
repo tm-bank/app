@@ -20,6 +20,7 @@ body {
 html,
 body {
   scrollbar-color: var(--color-border) var(--color-background);
+  background: var(--background);
 }
 
 @theme inline {

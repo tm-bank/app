@@ -64,8 +64,8 @@ const initialResultsState: ResultsState = {
     {
       id: 1,
       author: "Unknown",
-      title: "Unknown 2",
-      categories: ["Unknown"],
+      title: "Unknown",
+      categories: ["Unknown 2"],
       views: 0,
       imageUrl: "/placeholder.svg",
     },
@@ -101,6 +101,38 @@ const initialResultsState: ResultsState = {
       views: 0,
       imageUrl: "/placeholder.svg",
     },
+    {
+      id: 6,
+      author: "Unknown",
+      title: "Unknown 2",
+      categories: ["Unknown"],
+      views: 0,
+      imageUrl: "/placeholder.svg",
+    },
+    {
+      id: 7,
+      author: "Unknown",
+      title: "Unknown 2",
+      categories: ["Unknown"],
+      views: 0,
+      imageUrl: "/placeholder.svg",
+    },
+    {
+      id: 8,
+      author: "Unknown",
+      title: "Unknown 2",
+      categories: ["Unknown"],
+      views: 0,
+      imageUrl: "/placeholder.svg",
+    },
+    {
+      id: 9,
+      author: "Unknown",
+      title: "Unknown 2",
+      categories: ["Unknown"],
+      views: 0,
+      imageUrl: "/placeholder.svg",
+    },
   ],
 };
 
@@ -111,8 +143,6 @@ const initialCategoryState: CategoryState = {
     name: "",
   },
 };
-
-
 
 const categorySlice = createSlice({
   name: "category",
