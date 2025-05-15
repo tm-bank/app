@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Search, Grid3X3, Tag } from "lucide-react";
-
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Badge } from "~/components/ui/badge";
@@ -21,19 +20,69 @@ import {
 } from "~/components/ui/sidebar";
 import { Link, useLocation } from "react-router";
 import { Logo } from "./logo";
-import { useAppSelector } from "~/store/store";
+import { supabase } from "~/wrapper";
+
+import { useAppDispatch } from "~/store/store";
+import setReduxMaps from "~/store/maps-slice";
 
 export function TrackmaniaSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [localMaps, setLocalMaps] = React.useState<any[]>([]);
   const { state } = useSidebar();
-
+  const dispatch = useAppDispatch();
   const location = useLocation();
 
+  async function fetchMaps(filter: string = "") {
+    if (!supabase) return;
+
+    let query = supabase
+      .from("maps")
+      .select(`id, created_at, author, title, images, tags, tmx_link, views`);
+
+    if (filter) {
+      query = query.or(
+        `title.ilike.%${filter}%,author.ilike.%${filter}%,tags.cs.{${filter}}`
+      );
+    }
+
+    query = query.order("views", { ascending: false });
+
+    const { data, error } = await query.range(0, 50);
+
+    if (error) {
+      console.error("Supabase fetch error:", error);
+      return;
+    }
+
+    const mapsArray = data || [];
+
+    setLocalMaps(mapsArray);
+    dispatch(setReduxMaps.actions.setMaps(mapsArray));
+  }
+
   React.useEffect(() => {
-    console.log("Search query changed:", searchQuery);
+    fetchMaps();
+  }, []);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => fetchMaps(searchQuery), 300);
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const categories = useAppSelector((state) => state.category.categories);
+  const tagCounts = React.useMemo(() => {
+    return localMaps.reduce<Record<string, number>>((acc, map) => {
+      map.tags.forEach((tag: string) => {
+        acc[tag] = (acc[tag] || 0) + 1;
+      });
+      return acc;
+    }, {});
+  }, [localMaps]);
+
+  const sortedTags = React.useMemo(() => {
+    return Object.entries(tagCounts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([tag]) => tag);
+  }, [tagCounts]);
 
   return (
     <Sidebar collapsible="icon">
@@ -44,14 +93,15 @@ export function TrackmaniaSidebar() {
           </div>
           <div
             className={`font-semibold text-lg leading-none ${
-              state == "collapsed" ? "hidden" : ""
+              state === "collapsed" ? "hidden" : ""
             }`}
           >
-            Scenery Bank
+            TM Bank
           </div>
         </div>
+
         <div
-          className={`mt-4 relative ${state == "collapsed" ? "hidden" : ""}`}
+          className={`mt-4 relative ${state === "collapsed" ? "hidden" : ""}`}
         >
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -63,6 +113,7 @@ export function TrackmaniaSidebar() {
           />
         </div>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -87,32 +138,18 @@ export function TrackmaniaSidebar() {
           <SidebarGroupLabel>Categories</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {categories.map((category) => (
-                <SidebarMenuItem key={category[0]}>
-                  <SidebarMenuButton>
+              {sortedTags.map((tag) => (
+                <SidebarMenuItem key={tag}>
+                  <SidebarMenuButton onClick={() => setSearchQuery(tag)}>
                     <Tag className="h-4 w-4" />
-                    <span>{category[0]}</span>
+                    <span>{tag}</span>
                     <Badge variant="outline" className="ml-auto">
-                      {category[1]}
+                      {localMaps.filter((m) => m.tags.includes(tag)).length}
                     </Badge>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className={cn(state === "collapsed" && "hidden")}>
-          <SidebarGroupLabel>Quick Filters</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <div className="flex flex-wrap gap-2 px-2 py-1">
-              <Badge variant="secondary" className="cursor-pointer">
-                Most Popular
-              </Badge>
-              <Badge variant="secondary" className="cursor-pointer">
-                Newest
-              </Badge>
-            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

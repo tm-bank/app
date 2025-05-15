@@ -2,9 +2,10 @@
 import * as React from "react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { SidebarProvider } from "~/components/ui/sidebar";
-import store from "./store/store";
-import { Provider } from "react-redux";
 import { TooltipProvider } from "~/components/ui/tooltip";
+
+import "./app.css";
+import StoreProvider from "./store/store-provider";
 
 export default function RootLayout({
   children,
@@ -22,10 +23,12 @@ export default function RootLayout({
   }
 
   return (
-    <ThemeProvider defaultTheme="system">
-      <SidebarProvider>
-        <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
-      </SidebarProvider>
-    </ThemeProvider>
+    <StoreProvider>
+      <ThemeProvider defaultTheme="system">
+        <SidebarProvider>
+          <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+        </SidebarProvider>
+      </ThemeProvider>
+    </StoreProvider>
   );
 }

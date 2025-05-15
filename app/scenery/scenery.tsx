@@ -3,8 +3,8 @@ import Wrapper from "~/wrapper";
 
 export function meta() {
   return [
-    { title: "Trackmania Scenery Hub" },
-    { name: "description", content: "Welcome to the scenery hub!" },
+    { title: "TM Bank" },
+    { name: "description", content: "Welcome to the tm bank!" },
   ];
 }
 

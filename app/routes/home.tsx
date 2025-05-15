@@ -3,8 +3,8 @@ import Scenery from "../scenery/scenery";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Trackmania Scenery Bank" },
-    { name: "description", content: "Welcome to Scenery Bank!" },
+    { title: "TM Bank" },
+    { name: "description", content: "Welcome to the TM Bank!" },
   ];
 }
 
