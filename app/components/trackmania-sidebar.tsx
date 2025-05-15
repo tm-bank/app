@@ -20,7 +20,7 @@ import {
 } from "~/components/ui/sidebar";
 import { Link, useLocation } from "react-router";
 import { Logo } from "./logo";
-import { supabase } from "~/wrapper";
+import { supabase } from "~/supabase";
 
 import { useAppDispatch } from "~/store/store";
 import setReduxMaps from "~/store/maps-slice";

@@ -1,4 +1,4 @@
-import { supabase } from "~/wrapper";
+import { supabase } from "~/supabase";
 
 export async function bumpViews(mapId: number) {
   if (supabase) {
