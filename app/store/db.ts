@@ -23,7 +23,11 @@ export async function bumpViews(mapId: number) {
   }
 }
 
-export async function fetchMaps(filter: string = "", dispatch: AppDispatch, setLocalMaps: Dispatch<SetStateAction<Map[]>>) {
+export async function fetchMaps(
+  filter: string = "",
+  dispatch: AppDispatch,
+  setLocalMaps: Dispatch<SetStateAction<Map[]>>
+) {
   if (!supabase) return;
 
   let query = supabase
@@ -31,9 +35,28 @@ export async function fetchMaps(filter: string = "", dispatch: AppDispatch, setL
     .select(`id, created_at, author, title, images, tags, tmx_link, views`);
 
   if (filter) {
-    query = query.or(
-      `title.ilike.%${filter}%,author.ilike.%${filter}%,tags.cs.{${filter}}`
-    );
+    const filters = filter
+      .split(",")
+      .map((f) => f.trim())
+      .filter(Boolean);
+
+    const titleFilters = filters
+      .map((f) => `title.ilike.%${f}%`)
+      .join(",");
+
+    const authorFilters = filters
+      .map((f) => `author.ilike.%${f}%`)
+      .join(",");
+
+    const tagsFilters = filters.length
+      ? `tags.cs.{${filters.join(",")}}`
+      : "";
+
+      const orFilters = [titleFilters, authorFilters, tagsFilters]
+      .filter(Boolean)
+      .join(",");
+
+    query = query.or(orFilters);
   }
 
   query = query.order("views", { ascending: false });

@@ -11,6 +11,7 @@ import {
   Upload,
   Mail,
   UserX,
+  LucideLayoutDashboard,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
@@ -37,7 +38,6 @@ import { fetchMaps } from "~/store/db";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 import { useAuth } from "~/providers/auth-provider";
-import { Button } from "../ui/button";
 
 function Header({
   setSearchQuery,
@@ -78,7 +78,7 @@ function Header({
 }
 
 export function Footer() {
-  const { user, signInWithEmail, signOut } = useAuth();
+  const { user, signInWithDiscord, signOut } = useAuth();
 
   return (
     <SidebarFooter className="bg-accent pb-4 pt-4">
@@ -87,8 +87,8 @@ export function Footer() {
           <>
             <SidebarMenuItem>
               <SidebarMenuButton tooltip="Upload new map" size="lg">
-                <Upload className="h-4 w-4" />
-                <Link to="/upload">Upload</Link>
+                <LucideLayoutDashboard className="h-4 w-4" />
+                <Link to="/dashboard">Dashboard</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -96,6 +96,7 @@ export function Footer() {
                 tooltip={"Sign out"}
                 size={"lg"}
                 onClick={() => signOut()}
+                className="cursor-pointer"
               >
                 <UserX className="h-4 w-4" />
                 Sign Out
@@ -109,24 +110,23 @@ export function Footer() {
                     <AvatarImage src={user.user_metadata.avatar_url} />
                   ) : (
                     <AvatarFallback>
-                      {user.email?.[0].toUpperCase()}
+                      {user.id?.[0].toUpperCase()}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <span>{user.email}</span>
+                <span>{user?.user_metadata.full_name}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </>
         ) : (
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Sign in with Email" size="lg">
-              <Button
-                onClick={() => signInWithEmail("longuint@proton.me")}
-                className="w-full"
-              >
-                <Mail className="h-8 w-8" />
-                <span>Sign in</span>
-              </Button>
+            <SidebarMenuButton
+              tooltip="Sign in with Discord"
+              size="lg"
+              onClick={() => signInWithDiscord()}
+              className="bg-accent-foreground text-accent justify-center hover:bg-accent-foreground/90 hover:text-accent/90"
+            >
+              <span>Sign in</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         )}
@@ -141,14 +141,11 @@ export function TrackmaniaSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [localMaps, setLocalMaps] = React.useState<any[]>([]);
   const { state } = useSidebar();
-  const { user } = useAuth();
 
-  // Initial call fetches all maps.
   React.useEffect(() => {
     fetchMaps("", dispatch, setLocalMaps);
   }, []);
 
-  // Filtered call.
   React.useEffect(() => {
     const timer = setTimeout(
       () => fetchMaps(searchQuery, dispatch, setLocalMaps),

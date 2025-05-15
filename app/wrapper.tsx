@@ -39,10 +39,6 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle />
-            <Button size="sm" className="gap-1">
-              <Upload className="h-4 w-4" />
-              <span>Upload</span>
-            </Button>
           </div>
         </header>
         {children}

@@ -1,61 +1,78 @@
-"use client";
-import React, { useState, useEffect, useContext } from "react";
-import type { Session, User, AuthChangeEvent } from "@supabase/supabase-js";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { type Session, type User } from "@supabase/supabase-js";
 import { supabase } from "~/supabase";
 
-interface AuthContext {
+interface AuthContextProps {
   user: User | null;
   session: Session | null;
-  signInWithEmail: (email: string) => Promise<void>;
-  signOut: () => void;
+  signInWithDiscord: (redirectTo?: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
-const Context = React.createContext<AuthContext | null>(null);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => {
+    const init = async () => {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
       setSession(data.session);
       setUser(data.session?.user ?? null);
-    });
+    };
+    init();
 
+    if (!supabase) return;
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event: AuthChangeEvent, s) => {
-        setSession(s);
-        setUser(s?.user ?? null);
+      (event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
       }
     );
-    return () => listener.subscription.unsubscribe();
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
-  const signInWithEmail = async (email: string) => {
+  const signInWithDiscord = async (redirectTo?: string) => {
     if (!supabase) return;
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin + "/" },
+    await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: redirectTo ? { redirectTo } : undefined,
     });
-    if (error) throw error;
   };
 
-  if (!supabase) return;
-  const signOut = () => {
+  const signOut = async () => {
     if (!supabase) return;
-    supabase.auth.signOut();
+    await supabase.auth.signOut();
   };
 
   return (
-    <Context.Provider value={{ user, session, signInWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, session, signInWithDiscord, signOut }}>
       {children}
-    </Context.Provider>
+    </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  const ctx = useContext(Context);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
-  return ctx;
-}
+export const useAuth = (): AuthContextProps => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
+export { supabase };
