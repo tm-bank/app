@@ -5,7 +5,8 @@ import { SidebarProvider } from "~/components/ui/sidebar";
 import { TooltipProvider } from "~/components/ui/tooltip";
 
 import "./app.css";
-import StoreProvider from "./store/store-provider";
+import StoreProvider from "~/providers/store-provider";
+import { AuthProvider } from "./providers/auth-provider";
 
 export default function RootLayout({
   children,
@@ -24,11 +25,13 @@ export default function RootLayout({
 
   return (
     <StoreProvider>
-      <ThemeProvider defaultTheme="system">
-        <SidebarProvider>
-          <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
-        </SidebarProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider defaultTheme="system">
+          <SidebarProvider>
+            <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+          </SidebarProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </StoreProvider>
   );
 }
