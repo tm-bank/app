@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import Scenery from "../scenery/scenery";
+import Scenery from "./scenery/scenery";
 
 export function meta({}: Route.MetaArgs) {
   return [
