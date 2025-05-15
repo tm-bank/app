@@ -38,10 +38,6 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
             </Breadcrumb>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-1">
-              <Filter className="h-4 w-4" />
-              <span>Filters</span>
-            </Button>
             <ModeToggle />
             <Button size="sm" className="gap-1">
               <Upload className="h-4 w-4" />

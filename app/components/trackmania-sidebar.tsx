@@ -81,7 +81,7 @@ export function TrackmaniaSidebar() {
   const sortedTags = React.useMemo(() => {
     return Object.entries(tagCounts)
       .sort(([, a], [, b]) => b - a)
-      .map(([tag]) => tag);
+      .map(([tag]) => tag).slice(0, 6);
   }, [tagCounts]);
 
   return (
