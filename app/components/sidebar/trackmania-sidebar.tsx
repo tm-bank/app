@@ -20,52 +20,28 @@ import {
 } from "~/components/ui/sidebar";
 import { Link, useLocation } from "react-router";
 import { Logo } from "./logo";
-import { supabase } from "~/supabase";
 
 import { useAppDispatch } from "~/store/store";
-import setReduxMaps from "~/store/maps-slice";
+import { fetchMaps } from "~/store/db";
 
 export function TrackmaniaSidebar() {
+  const location = useLocation();
+  const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [localMaps, setLocalMaps] = React.useState<any[]>([]);
   const { state } = useSidebar();
-  const dispatch = useAppDispatch();
-  const location = useLocation();
 
-  async function fetchMaps(filter: string = "") {
-    if (!supabase) return;
-
-    let query = supabase
-      .from("maps")
-      .select(`id, created_at, author, title, images, tags, tmx_link, views`);
-
-    if (filter) {
-      query = query.or(
-        `title.ilike.%${filter}%,author.ilike.%${filter}%,tags.cs.{${filter}}`
-      );
-    }
-
-    query = query.order("views", { ascending: false });
-
-    const { data, error } = await query.range(0, 50);
-
-    if (error) {
-      console.error("Supabase fetch error:", error);
-      return;
-    }
-
-    const mapsArray = data || [];
-
-    setLocalMaps(mapsArray);
-    dispatch(setReduxMaps.actions.setMaps(mapsArray));
-  }
-
+  // Initial call fetches all maps.
   React.useEffect(() => {
-    fetchMaps();
+    fetchMaps("", dispatch, setLocalMaps);
   }, []);
 
+  // Filtered call.
   React.useEffect(() => {
-    const timer = setTimeout(() => fetchMaps(searchQuery), 300);
+    const timer = setTimeout(
+      () => fetchMaps(searchQuery, dispatch, setLocalMaps),
+      300
+    );
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
@@ -81,7 +57,8 @@ export function TrackmaniaSidebar() {
   const sortedTags = React.useMemo(() => {
     return Object.entries(tagCounts)
       .sort(([, a], [, b]) => b - a)
-      .map(([tag]) => tag).slice(0, 6);
+      .map(([tag]) => tag)
+      .slice(0, 6);
   }, [tagCounts]);
 
   return (
@@ -135,7 +112,7 @@ export function TrackmaniaSidebar() {
         </SidebarGroup>
 
         <SidebarGroup className={cn(state === "collapsed" && "hidden")}>
-          <SidebarGroupLabel>Categories</SidebarGroupLabel>
+          <SidebarGroupLabel>Tags</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sortedTags.map((tag) => (

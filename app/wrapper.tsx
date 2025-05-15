@@ -1,6 +1,6 @@
 "use client";
-import { Filter, Upload } from "lucide-react";
-import { TrackmaniaSidebar } from "./components/trackmania-sidebar";
+import { Upload } from "lucide-react";
+import { TrackmaniaSidebar } from "./components/sidebar/trackmania-sidebar";
 import { Button } from "./components/ui/button";
 import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import {
