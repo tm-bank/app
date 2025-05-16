@@ -117,7 +117,7 @@ export function Footer() {
             <SidebarMenuButton
               tooltip="Sign in with Discord"
               size="lg"
-              onClick={() => signInWithDiscord()}
+              onClick={() => signInWithDiscord("https://tm-bank.vercel.app/")}
               className="bg-accent-foreground text-accent justify-center hover:bg-accent-foreground/90 hover:text-accent/90"
             >
               <span>Sign in</span>
