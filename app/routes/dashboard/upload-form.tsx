@@ -23,9 +23,9 @@ import { Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import type { Map } from "~/types";
 import { useAuth } from "~/providers/auth-provider";
-import { uploadImage, uploadMap } from "~/store/db";
-import { v4 } from "uuid";
+import { uploadImage, uploadMap, fetchMaps } from "~/store/db";
 import { Separator } from "~/components/ui/separator";
+import { useDispatch } from "react-redux";
 
 const VALID_TAGS = [
   /* Colors */
@@ -66,6 +66,7 @@ export function UploadForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
+  const dispatch = useDispatch();
 
   type FormValues = z.infer<typeof formSchema>;
   const form = useForm<FormValues>({
@@ -83,7 +84,7 @@ export function UploadForm() {
       const file = e.target.files[0];
       setPreviewImage(file);
       setPreviewUrl(URL.createObjectURL(file));
-      form.setValue("image", file); // <-- This line is required!
+      form.setValue("image", file);
     }
   };
 
@@ -119,7 +120,7 @@ export function UploadForm() {
       return;
     }
 
-    const link = await uploadImage(v4(), values.image);
+    const link = await uploadImage(values.image);
 
     if (!link) {
       return;
@@ -136,13 +137,12 @@ export function UploadForm() {
       images: [link],
     };
 
-    let result = uploadMap(map);
-
+    let result = await uploadMap(map);
     setIsUploading(true);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      await fetchMaps("", dispatch, () => {});
       form.reset();
 
       clearPreviewImage();

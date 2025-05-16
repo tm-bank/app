@@ -43,7 +43,7 @@ function SceneryCard({ item }: { item: Map }) {
     <Card className="overflow-hidden" key={item.id}>
       <div className="relative aspect-[3/2] overflow-hidden">
         <img
-          src={item.images[0] || "placeholder.svg"}
+          src={"https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" + item.images[0] || "placeholder.svg"}
           alt={item.title}
           className="object-cover w-full h-full transition-transform hover:scale-105"
         />

@@ -5,24 +5,25 @@ import type { Map } from "~/types";
 import setReduxMaps from "~/store/maps-slice";
 import { toast } from "sonner";
 
-export async function uploadImage(
-  fileName: string,
-  image: File
-): Promise<string | undefined> {
-  if (!supabase) {
-    toast.error("Failed to upload image!");
-    return "";
-  }
-  try {
-    const { data, error } = await supabase.storage
-      .from("images")
-      .upload(fileName, image);
+import { v4 as uuidv4 } from "uuid";
+import mapsSlice from "~/store/maps-slice";
 
-    if (error) {
-      throw new Error(error.message);
+export async function uploadImage(image: File): Promise<string | undefined> {
+  try {
+    const extension = image.name.split(".").pop();
+    const key = `${uuidv4()}.${extension}`;
+
+    if (!supabase) {
+      throw new Error("Supabase is not initialized.");
     }
 
-    return "https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/" + data?.fullPath;
+    const { data, error } = await supabase.storage
+      .from("images")
+      .upload(key, image);
+
+    if (error) throw error;
+
+    return data.path;
   } catch (e) {
     toast.error(`Failed to upload image: ${e}!`);
   }
@@ -92,6 +93,7 @@ export async function fetchMaps(
   const mapsArray = data || [];
 
   setLocalMaps(mapsArray);
+  mapsSlice.actions.setMaps(mapsArray);
   dispatch(setReduxMaps.actions.setMaps(mapsArray));
 }
 
@@ -108,5 +110,84 @@ export async function uploadMap(map: Omit<Map, "id">) {
     } else {
       toast.info("Successfully uploaded map.");
     }
+  }
+}
+
+async function deleteImages(bucketName: string, imageKeys: string[]) {
+  if (!supabase) {
+    toast.error("Failed to delete image, supabase is not initialized!");
+    return;
+  }
+
+  const { data: files, error: listError } = await supabase.storage
+    .from(bucketName)
+    .list("", { limit: 1000 });
+
+  if (listError) {
+    console.error("Error listing images:", listError);
+    toast.error(`Failed to list images: ${listError.message}!`);
+    return;
+  }
+
+  const filesToDelete = files
+    .filter((file) => imageKeys.some((key) => file.name.startsWith(key)))
+    .map((file) => file.name);
+
+  if (filesToDelete.length === 0) {
+    console.log("No matching files to delete.");
+    return;
+  }
+
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .remove(filesToDelete);
+
+  if (error) {
+    console.error("Error deleting images:", error);
+    toast.error(`Failed to delete image ${error.message}!`);
+    return;
+  }
+
+  console.log("Deleted:", data);
+  return data;
+}
+
+export async function deleteMap(mapId: number, dispatch?: AppDispatch) {
+  if (!supabase) {
+    toast.error("Supabase not initialized.");
+    return;
+  }
+
+  try {
+    const { data: mapData, error: fetchErr } = await supabase
+      .from("maps")
+      .select("images")
+      .eq("id", mapId)
+      .single();
+
+    if (fetchErr || !mapData) {
+      toast.error("Map not found.");
+      return;
+    }
+
+    const images = mapData.images;
+    console.log(images);
+
+    deleteImages("images", images);
+
+    const { error } = await supabase.from("maps").delete().eq("id", mapId);
+
+    if (error) {
+      toast.error(`Failed to delete map: ${error.message}`);
+      console.error("Failed to delete map:", error);
+    } else {
+      toast.info("Map deleted successfully.");
+      if (dispatch) {
+        await fetchMaps("", dispatch, () => {});
+      }
+    }
+  } catch (e) {
+    toast.error(`Failed to delete map: ${e}`);
+    console.error("Delete map error:", e);
   }
 }

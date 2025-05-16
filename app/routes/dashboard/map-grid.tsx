@@ -4,10 +4,11 @@ import { Eye } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
-import { useAppSelector } from "~/store/store";
+import { useAppDispatch, useAppSelector } from "~/store/store";
 import type { Map } from "~/types";
-import { bumpViews } from "~/store/db";
+import { deleteMap, fetchMaps } from "~/store/db";
 import { useAuth } from "~/providers/auth-provider";
+import mapsSlice from "~/store/maps-slice";
 
 export function MapGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -37,11 +38,17 @@ export function MapGrid() {
 }
 
 function SceneryCard({ item }: { item: Map }) {
+  const { user } = useAuth();
+  const dispatch = useAppDispatch();
+
   return (
     <Card className="overflow-hidden" key={item.id}>
       <div className="relative aspect-[3/2] overflow-hidden">
         <img
-          src={item.images[0] || "placeholder.svg"}
+          src={
+            "https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" +
+              item.images[0] || "placeholder.svg"
+          }
           alt={item.title}
           className="object-cover w-full h-full transition-transform hover:scale-105"
         />
@@ -74,9 +81,9 @@ function SceneryCard({ item }: { item: Map }) {
           size="sm"
           className="gap-1"
           onClick={() => {
-            bumpViews(item.id);
-            if (item.tmx_link) {
-              window.open(item.tmx_link);
+            // One last auth check
+            if (user?.id === item.author) {
+              deleteMap(item.id);
             }
           }}
         >
