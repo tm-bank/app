@@ -1,13 +1,12 @@
 "use client";
-import { Upload } from "lucide-react";
 import { TrackmaniaSidebar } from "./components/sidebar/trackmania-sidebar";
-import { Button } from "./components/ui/button";
 import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbSeparator,
 } from "./components/ui/breadcrumb";
 import { ModeToggle } from "./components/mode-toggle";
 import { useLocation } from "react-router";
@@ -25,8 +24,9 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                  <BreadcrumbLink href="/">home</BreadcrumbLink>
                 </BreadcrumbItem>
+                <BreadcrumbSeparator />
                 {location.pathname !== "/" && (
                   <BreadcrumbItem>
                     <BreadcrumbLink href={location.pathname}>

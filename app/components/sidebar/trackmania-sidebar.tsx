@@ -86,12 +86,6 @@ export function Footer() {
         {user ? (
           <>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Upload new map" size="lg">
-                <LucideLayoutDashboard className="h-4 w-4" />
-                <Link to="/dashboard">Dashboard</Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
               <SidebarMenuButton
                 tooltip={"Sign out"}
                 size={"lg"}
@@ -190,6 +184,15 @@ export function TrackmaniaSidebar() {
                   >
                     <Grid3X3 className="h-4 w-4" />
                     <span>Scenery</span>
+                  </SidebarMenuButton>
+                </Link>
+                <Link to="/dashboard">
+                  <SidebarMenuButton
+                    tooltip="Dashboard"
+                    isActive={location.pathname === "/dashboard"}
+                  >
+                    <LucideLayoutDashboard className="h-4 w-4" />
+                    <span>Dashboard</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

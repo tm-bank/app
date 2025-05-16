@@ -7,6 +7,7 @@ import { TooltipProvider } from "~/components/ui/tooltip";
 import "./app.css";
 import StoreProvider from "~/providers/store-provider";
 import { AuthProvider } from "./providers/auth-provider";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -27,6 +28,7 @@ export default function RootLayout({
     <StoreProvider>
       <AuthProvider>
         <ThemeProvider defaultTheme="system">
+          <Toaster />
           <SidebarProvider>
             <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
           </SidebarProvider>

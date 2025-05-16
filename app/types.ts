@@ -7,4 +7,5 @@ export interface Map {
   tags: string[];
   tmx_link: string;
   views: number;
+  author_display: string;
 }
