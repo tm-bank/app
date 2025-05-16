@@ -58,12 +58,14 @@ const formSchema = z.object({
   }),
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
-  image: z.instanceof(File),
+  images: z
+    .array(z.instanceof(File))
+    .min(1, { message: "Please upload at least one image." }),
 });
 
 export function UploadForm() {
-  const [previewImage, setPreviewImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewImages, setPreviewImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
   const dispatch = useDispatch();
@@ -75,25 +77,32 @@ export function UploadForm() {
       title: "",
       view_link: "",
       tags: [],
-      image: previewImage as File,
+      images: [],
     },
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setPreviewImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      form.setValue("image", file);
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      setPreviewImages((prev) => [...prev, ...files]);
+      setPreviewUrls((prev) => [
+        ...prev,
+        ...files.map((file) => URL.createObjectURL(file)),
+      ]);
+      form.setValue("images", [...form.getValues("images"), ...files]);
     }
   };
 
-  const clearPreviewImage = () => {
-    setPreviewImage(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
+  const clearPreviewImage = (index: number) => {
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+    const newImages = form
+      .getValues("images")
+      .filter((_: File, i: number) => i !== index);
+    form.setValue("images", newImages);
   };
 
   const onTagToggle = (
@@ -120,9 +129,16 @@ export function UploadForm() {
       return;
     }
 
-    const link = await uploadImage(values.image);
+    // Upload all images and collect their links
+    const links: string[] = [];
+    for (const image of values.images) {
+      const link = await uploadImage(image);
+      if (link) {
+        links.push(link);
+      }
+    }
 
-    if (!link) {
+    if (links.length === 0) {
       return;
     }
 
@@ -134,7 +150,7 @@ export function UploadForm() {
       tmx_link: values.view_link,
       views: 0,
       title: values.title,
-      images: [link],
+      images: links,
     };
 
     let result = await uploadMap(map);
@@ -145,7 +161,10 @@ export function UploadForm() {
       await fetchMaps("", dispatch, () => {});
       form.reset();
 
-      clearPreviewImage();
+      // Clear all previews
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      setPreviewImages([]);
+      setPreviewUrls([]);
     } catch (error) {
       toast.error(`Error uploading map: ${error}`);
     } finally {
@@ -241,29 +260,60 @@ export function UploadForm() {
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="preview-image">
-                    Image
-                    <Separator orientation="vertical" />
-                    <span className=" text-muted-foreground">
-                      ideally 100% aspect ratio
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-row gap-2">
+                      Images
+                      <span className=" text-muted-foreground">
+                        ideally 100% aspect ratio
+                      </span>
+                    </div>
+                    <br />
+                    <span className="text-muted-foreground">
+                      The first image will show as the banner.
                     </span>
-                  </Label>
+                  </div>
                   <div className="mt-1.5">
-                    {previewUrl ? (
-                      <div className="relative w-full h-48 rounded-lg overflow-visible">
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2 z-10 h-8 w-8"
-                          onClick={clearPreviewImage}
+                    {previewUrls.length > 0 ? (
+                      <div className="flex flex-wrap gap-4">
+                        {previewUrls.map((url, idx) => (
+                          <div
+                            key={url}
+                            className="relative w-32 h-32 rounded-lg overflow-visible"
+                          >
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2 z-10 h-6 w-6"
+                              onClick={() => clearPreviewImage(idx)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <img
+                              src={url || "/placeholder.svg"}
+                              className="max-w-full max-h-full rounded"
+                            />
+                          </div>
+                        ))}
+                        <label
+                          htmlFor="preview-image"
+                          className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/40 hover:bg-muted/60"
                         >
-                          <X className="h-4 w-4" />
-                        </Button>
-                        <img
-                          src={previewUrl || "/placeholder.svg"}
-                          className="max-w-full max-h-full"
-                        />
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                            <p className="mb-2 text-xs text-muted-foreground">
+                              Add more
+                            </p>
+                          </div>
+                          <Input
+                            id="preview-image"
+                            type="file"
+                            className="hidden"
+                            accept="image/png, image/jpeg, image/webp"
+                            multiple
+                            onChange={handleImageChange}
+                          />
+                        </label>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center w-full">
@@ -288,6 +338,7 @@ export function UploadForm() {
                             type="file"
                             className="hidden"
                             accept="image/png, image/jpeg, image/webp"
+                            multiple
                             onChange={handleImageChange}
                           />
                         </label>
@@ -301,7 +352,7 @@ export function UploadForm() {
             <Button
               type="submit"
               className="w-full md:w-auto"
-              disabled={!previewUrl || !previewImage}
+              disabled={previewImages.length === 0}
             >
               {isUploading ? "Uploading..." : "Upload Map"}
             </Button>
