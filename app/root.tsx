@@ -1,4 +1,7 @@
+"use client";
+
 import {
+  BrowserRouter,
   isRouteErrorResponse,
   Links,
   Meta,

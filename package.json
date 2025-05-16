@@ -6,7 +6,9 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build/client"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -49,6 +51,7 @@
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "gh-pages": "^6.3.0",
     "tailwindcss": "^4.1.4",
     "tw-animate-css": "^1.2.9",
     "typescript": "^5.8.3",

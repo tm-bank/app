@@ -19,6 +19,7 @@ import type { Map } from "~/types";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
+import { Badge } from "~/components/ui/badge";
 
 export function MapPage() {
   const { mapId } = useParams<{ mapId: string }>();
@@ -63,6 +64,13 @@ export function MapPage() {
                 <CardDescription>{map.author_display}</CardDescription>
               </CardHeader>
               <CardContent>
+                <div className="flex gap-2 pb-2 flex-wrap">
+                  {map.tags.map((category: string) => (
+                    <Badge variant="outline" className="p-2" key={category}>
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
                 <div className="grid grid-cols-2">
                   {map.images.map((url) => (
                     <img
@@ -77,7 +85,13 @@ export function MapPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button>
+                <Button
+                  onClick={() => {
+                    if (map.tmx_link) {
+                      window.open(map.tmx_link);
+                    }
+                  }}
+                >
                   View <ArrowUpRight className="h-4 w-4" />
                 </Button>
               </CardFooter>

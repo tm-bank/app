@@ -42,7 +42,7 @@ function SceneryCard({ item }: { item: Map }) {
 
   return (
     <Card className="overflow-hidden" key={item.id}>
-      <Link to={`/map/${item.id}`}>
+      <Link to={`/app/map/${item.id}`}>
         <div className="relative aspect-[3/2] overflow-hidden">
           <img
             src={

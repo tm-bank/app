@@ -177,19 +177,19 @@ export function TrackmaniaSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <Link to="/">
+                <Link to="/app/">
                   <SidebarMenuButton
                     tooltip="Browse"
-                    isActive={location.pathname === "/"}
+                    isActive={location.pathname === "/app/"}
                   >
                     <Grid3X3 className="h-4 w-4" />
                     <span>Scenery</span>
                   </SidebarMenuButton>
                 </Link>
-                <Link to="/dashboard">
+                <Link to="/app/dashboard">
                   <SidebarMenuButton
                     tooltip="Dashboard"
-                    isActive={location.pathname === "/dashboard"}
+                    isActive={location.pathname === "/appdashboard"}
                   >
                     <LucideLayoutDashboard className="h-4 w-4" />
                     <span>Dashboard</span>
