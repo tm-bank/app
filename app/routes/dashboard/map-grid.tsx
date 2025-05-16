@@ -4,11 +4,11 @@ import { Eye } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
-import { useAppDispatch, useAppSelector } from "~/store/store";
+import { useAppSelector } from "~/store/store";
 import type { Map } from "~/types";
-import { deleteMap, fetchMaps } from "~/store/db";
+import { deleteMap } from "~/store/db";
 import { useAuth } from "~/providers/auth-provider";
-import mapsSlice from "~/store/maps-slice";
+import { Link } from "react-router";
 
 export function MapGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -39,20 +39,21 @@ export function MapGrid() {
 
 function SceneryCard({ item }: { item: Map }) {
   const { user } = useAuth();
-  const dispatch = useAppDispatch();
 
   return (
     <Card className="overflow-hidden" key={item.id}>
-      <div className="relative aspect-[3/2] overflow-hidden">
-        <img
-          src={
-            "https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" +
-              item.images[0] || "placeholder.svg"
-          }
-          alt={item.title}
-          className="object-cover w-full h-full transition-transform hover:scale-105"
-        />
-      </div>
+      <Link to={`/map/${item.id}`}>
+        <div className="relative aspect-[3/2] overflow-hidden">
+          <img
+            src={
+              "https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" +
+                item.images[0] || "placeholder.svg"
+            }
+            alt={item.title}
+            className="object-cover w-full h-full transition-transform hover:scale-105"
+          />
+        </div>
+      </Link>
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <div>

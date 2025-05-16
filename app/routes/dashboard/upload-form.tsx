@@ -261,12 +261,7 @@ export function UploadForm() {
               <div className="space-y-4">
                 <div>
                   <div className="flex flex-col gap-2">
-                    <div className="flex flex-row gap-2">
-                      Images
-                      <span className=" text-muted-foreground">
-                        ideally 100% aspect ratio
-                      </span>
-                    </div>
+                    <div className="flex flex-row gap-2">Images</div>
                     <br />
                     <span className="text-muted-foreground">
                       The first image will show as the banner.

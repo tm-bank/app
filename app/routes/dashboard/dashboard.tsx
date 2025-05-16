@@ -6,7 +6,7 @@ import { MapGrid } from "./map-grid";
 export function meta() {
   return [
     { title: "TM Bank | Dashboard" },
-    { name: "description", content: "Welcome to the tm bank!" },
+    { name: "description", content: "Welcome to the TM Bank!" },
   ];
 }
 

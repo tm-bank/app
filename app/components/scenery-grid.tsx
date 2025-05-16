@@ -9,6 +9,7 @@ import { useAppSelector } from "~/store/store";
 import type { Map } from "~/types";
 import { bumpViews } from "~/store/db";
 import { useAuth } from "~/providers/auth-provider";
+import { Link } from "react-router";
 
 export function SceneryGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -41,19 +42,29 @@ function SceneryCard({ item }: { item: Map }) {
 
   return (
     <Card className="overflow-hidden" key={item.id}>
-      <div className="relative aspect-[3/2] overflow-hidden">
-        <img
-          src={"https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" + item.images[0] || "placeholder.svg"}
-          alt={item.title}
-          className="object-cover w-full h-full transition-transform hover:scale-105"
-        />
-      </div>
+      <Link to={`/map/${item.id}`}>
+        <div className="relative aspect-[3/2] overflow-hidden">
+          <img
+            src={
+              "https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" +
+                item.images[0] || "placeholder.svg"
+            }
+            alt={item.title}
+            className="object-cover w-full h-full transition-transform hover:scale-105"
+          />
+        </div>
+      </Link>
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-medium text-base">{item.title}</h3>
             <p className="text-sm text-muted-foreground">
-              by {user?.user_metadata.full_name == item.author_display ? "you!" : item.author_display !== null ? item.author_display : "unknown"}
+              by{" "}
+              {user?.user_metadata.full_name == item.author_display
+                ? "you!"
+                : item.author_display !== null
+                ? item.author_display
+                : "unknown"}
             </p>
           </div>
           <Tooltip>

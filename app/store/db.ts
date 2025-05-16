@@ -97,6 +97,26 @@ export async function fetchMaps(
   dispatch(setReduxMaps.actions.setMaps(mapsArray));
 }
 
+export async function getMap(mapId: string) {
+  if (!supabase) return;
+
+  const { data, error } = await supabase
+    .from("maps")
+    .select(
+      `id, created_at, author, title, images, tags, tmx_link, views, author_display`
+    )
+    .eq("id", mapId)
+    .single();
+
+  if (error) {
+    toast.error(`Fetch Error: ${error.message}`);
+    console.error("Supabase fetch error:", error);
+    return null;
+  }
+
+  return data;
+}
+
 export async function uploadMap(map: Omit<Map, "id">) {
   if (supabase) {
     const { data, error: updateErr } = await supabase

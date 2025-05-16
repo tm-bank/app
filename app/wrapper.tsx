@@ -11,6 +11,7 @@ import {
 import { ModeToggle } from "./components/mode-toggle";
 import { useLocation } from "react-router";
 import RootLayout from "./root-layout";
+import React from "react";
 
 export default function Wrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -26,14 +27,21 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
                 <BreadcrumbItem>
                   <BreadcrumbLink href="/">home</BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                {location.pathname !== "/" && (
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href={location.pathname}>
-                      {location.pathname.replace("/", "")}
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                )}
+                {location.pathname !== "/" &&
+                  location.pathname
+                    .split("/")
+                    .filter(Boolean)
+                    .map((segment, idx, arr) => {
+                      const href = "/" + arr.slice(0, idx + 1).join("/");
+                      return (
+                        <React.Fragment key={href}>
+                          <BreadcrumbSeparator />
+                          <BreadcrumbItem>
+                            <BreadcrumbLink href={href}>{segment}</BreadcrumbLink>
+                          </BreadcrumbItem>
+                        </React.Fragment>
+                      );
+                    })}
               </BreadcrumbList>
             </Breadcrumb>
           </div>
