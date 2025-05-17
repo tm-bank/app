@@ -71,7 +71,7 @@ export function MapPage() {
                     </Badge>
                   ))}
                 </div>
-                <div className="grid grid-cols-2">
+                <div className="grid grid-cols-3 gap-2">
                   {map.images.map((url) => (
                     <img
                       src={
@@ -79,6 +79,7 @@ export function MapPage() {
                         "/storage/v1/object/public/images//" +
                         url
                       }
+                      className="border border-border p-2 rounded-xl"
                       key={url}
                     />
                   ))}
