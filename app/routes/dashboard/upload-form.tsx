@@ -144,7 +144,7 @@ export function UploadForm() {
 
     const map: Omit<Map, "id"> = {
       author: user.id,
-      author_display: user.user_metadata.full_name,
+      author_display: user.user_metadata.custom_claims.global_name,
       created_at: new Date(Date.now()),
       tags: values.tags,
       tmx_link: values.view_link,
@@ -225,7 +225,7 @@ export function UploadForm() {
                       <FormLabel>
                         Tags <Separator orientation="vertical" />
                         <span className=" text-muted-foreground">
-                          suggest more tags on the{" "}
+                          suggest more tags by opening an issue on the{" "}
                           <a
                             className="underline"
                             href="https://github.com/languint/tm-bank"
