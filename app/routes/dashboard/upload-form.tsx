@@ -278,6 +278,9 @@ export function UploadForm() {
                                           field.onChange
                                         )
                                       }
+                                      onSelect={(e) => {
+                                        e.preventDefault()
+                                      }}
                                     >
                                       {tag}
                                     </DropdownMenuCheckboxItem>
