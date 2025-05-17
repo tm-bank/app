@@ -66,6 +66,17 @@ const VALID_TAGS = {
     "Blocky",
     "Zoned",
   ],
+  special_themes: [
+    "Space",
+    "Pirates",
+    "Medieval",
+    "Modern",
+    "Sci-Fi",
+    "City",
+    "Farm",
+    "Forest",
+    "Hills",
+  ],
   blocks: ["Platform", "Canopy"],
   base: ["Void", "NoStadium", "Stadium", "WaterBase"],
 };
@@ -262,7 +273,7 @@ export function UploadForm() {
                                     variant="outline"
                                     className="capitalize flex justify-between min-w-[120px]"
                                   >
-                                    {category}
+                                    {category.replace("_", " ")}
                                     <ChevronDown className="ml-2 h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -279,7 +290,7 @@ export function UploadForm() {
                                         )
                                       }
                                       onSelect={(e) => {
-                                        e.preventDefault()
+                                        e.preventDefault();
                                       }}
                                     >
                                       {tag}
