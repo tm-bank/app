@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -98,6 +98,9 @@ export function UploadForm() {
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
   const dispatch = useDispatch();
+  
+  // Add a ref to track whether a submission is in progress
+  const isSubmittingRef = useRef(false);
 
   type FormValues = z.infer<typeof formSchema>;
   const form = useForm<FormValues>({
@@ -147,47 +150,56 @@ export function UploadForm() {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!(user?.aud === "authenticated")) {
-      toast.error("You must be signed in to upload maps.");
-      console.log("Not authenticated");
+    // Implement debounce mechanism to prevent duplicate submissions
+    if (isSubmittingRef.current) {
+      toast.info("Upload already in progress, please wait");
       return;
     }
-
-    if (values.view_link === undefined) {
-      console.log("Missing map image or view link!");
-      return;
-    }
-
-    // Upload all images and collect their links
-    const links: string[] = [];
-    for (const image of values.images) {
-      const link = await uploadImage(image);
-      if (link) {
-        links.push(link);
-      }
-    }
-
-    if (links.length === 0) {
-      return;
-    }
-
-    const map: Omit<Map, "id"> = {
-      author: user.id,
-      author_display: user.user_metadata.custom_claims.global_name,
-      created_at: new Date(Date.now()),
-      tags: values.tags,
-      tmx_link: values.view_link,
-      views: 0,
-      title: values.title,
-      images: links,
-    };
-
-    let result = await uploadMap(map);
+    
+    isSubmittingRef.current = true;
     setIsUploading(true);
 
     try {
+      if (!(user?.aud === "authenticated")) {
+        toast.error("You must be signed in to upload maps.");
+        console.log("Not authenticated");
+        return;
+      }
+
+      if (values.view_link === undefined) {
+        console.log("Missing map image or view link!");
+        return;
+      }
+
+      // Upload all images and collect their links
+      const links: string[] = [];
+      for (const image of values.images) {
+        const link = await uploadImage(image);
+        if (link) {
+          links.push(link);
+        }
+      }
+
+      if (links.length === 0) {
+        return;
+      }
+
+      const map: Omit<Map, "id"> = {
+        author: user.id,
+        author_display: user.user_metadata.custom_claims.global_name,
+        created_at: new Date(Date.now()),
+        tags: values.tags,
+        tmx_link: values.view_link,
+        views: 0,
+        title: values.title,
+        images: links,
+      };
+
+      let result = await uploadMap(map);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await fetchMaps("", dispatch, () => {});
+      
+      toast.success("Map uploaded successfully!");
       form.reset();
 
       // Clear all previews
@@ -198,6 +210,10 @@ export function UploadForm() {
       toast.error(`Error uploading map: ${error}`);
     } finally {
       setIsUploading(false);
+      // Reset the submission flag with a small delay to prevent rapid re-submissions
+      setTimeout(() => {
+        isSubmittingRef.current = false;
+      }, 1000);
     }
   };
 
