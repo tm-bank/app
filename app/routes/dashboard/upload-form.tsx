@@ -397,7 +397,7 @@ export function UploadForm() {
             <Button
               type="submit"
               className="w-full md:w-auto"
-              disabled={previewImages.length === 0}
+              disabled={previewImages.length === 0 || isUploading}
             >
               {isUploading ? "Uploading..." : "Upload Map"}
             </Button>
