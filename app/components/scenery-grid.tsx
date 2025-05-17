@@ -10,6 +10,8 @@ import type { Map } from "~/types";
 import { bumpViews } from "~/store/db";
 import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
+import { toast } from "sonner";
+import { sendDiscordWebhook } from "~/store/webhook";
 
 export function SceneryGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -67,12 +69,6 @@ function SceneryCard({ item }: { item: Map }) {
                 : "unknown"}
             </p>
           </div>
-          <Tooltip>
-            <TooltipContent>Report this item</TooltipContent>
-            <TooltipTrigger>
-              <Flag className="h-4 w-4" />
-            </TooltipTrigger>
-          </Tooltip>
         </div>
         <div className="flex gap-2 mt-2 flex-wrap">
           {item.tags.map((category: string) => (
@@ -82,26 +78,53 @@ function SceneryCard({ item }: { item: Map }) {
           ))}
         </div>
       </CardContent>
-      <div className="flex grow" />
       <CardFooter className="pt-0 flex justify-between">
         <div className="flex items-center gap-2">
           <Eye className={`h-4 w-4`} />
           <span className="text-sm text-muted-foreground">{item.views}</span>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1"
-          onClick={() => {
-            bumpViews(item.id);
-            if (item.tmx_link) {
-              window.open(item.tmx_link);
-            }
-          }}
-        >
-          <ArrowUpRight className="h-4 w-4" />
-          <span>View</span>
-        </Button>
+        <div className="flex flex-row gap-2">
+          <Tooltip>
+            <TooltipContent>Report this item</TooltipContent>
+            <TooltipTrigger>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={async () => {
+                  const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
+
+                  const reporter = user?.user_metadata.full_name ?? "anonymous";
+
+                  const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
+
+                  const result = await sendDiscordWebhook(reportURL, message);
+
+                  if (!result) {
+                    toast.error("Failed to report item");
+                  } else {
+                    toast.info("Successfully reported item");
+                  }
+                }}
+              >
+                <Flag className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+          </Tooltip>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={() => {
+              bumpViews(item.id);
+              if (item.tmx_link) {
+                window.open(item.tmx_link);
+              }
+            }}
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            <span>View</span>
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

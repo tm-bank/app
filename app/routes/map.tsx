@@ -1,6 +1,5 @@
 import { useParams } from "react-router";
 import type { Route } from "./+types/home";
-import Scenery from "./scenery/scenery";
 import { MapPage } from "./map/map";
 
 export function meta({}: Route.MetaArgs) {
@@ -11,6 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Map() {
-  const { mapId } = useParams();
-  return <MapPage mapId={mapId}/>;
+  return <MapPage />;
 }
