@@ -19,61 +19,56 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Upload, X } from "lucide-react";
+import { ChevronDown, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import type { Map } from "~/types";
 import { useAuth } from "~/providers/auth-provider";
 import { uploadImage, uploadMap, fetchMaps } from "~/store/db";
 import { Separator } from "~/components/ui/separator";
 import { useDispatch } from "react-redux";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
-const VALID_TAGS = [
-  /* Colors */
-  "Red",
-  "Orange",
-  "Yellow",
-  "Green",
-  "Blue",
-  "Purple",
-  "Black",
-  "White",
-  /* Styles */
-  "Tech",
-  "Wood",
-  "Grass",
-  "Dirt",
-  "Plastic",
-  "Wet",
-  "Reactor",
-  /* Themes */
-  "Dark",
-  "Terrain",
-  "Nature",
-  "Minimalistic",
-  "Nadeo",
-  "Complex",
-  "Abstract",
-  "Towers",
-  "MegaStructures",
-  "Immersive",
-  "Vanilla",
-  "Vanila++",
-  "Blender",
-  "Water",
-  "Rocks",
-  "Sharp",
-  "Curves",
-  "Blocky",
-  "Zoned",
-  /* Blocks */
-  "Platform",
-  "Canopy",
-  /* Misc */
-  "Void",
-  "NoStadium",
-  "Stadium",
-  "WaterBase"
-];
+const VALID_TAGS = {
+  colors: [
+    "Red",
+    "Orange",
+    "Yellow",
+    "Green",
+    "Blue",
+    "Purple",
+    "Black",
+    "White",
+  ],
+  styles: ["Tech", "Wood", "Grass", "Dirt", "Plastic", "Wet", "Reactor"],
+  themes: [
+    "Dark",
+    "Terrain",
+    "Nature",
+    "Minimalistic",
+    "Nadeo",
+    "Complex",
+    "Abstract",
+    "Towers",
+    "MegaStructures",
+    "Immersive",
+    "Vanilla",
+    "Vanila++",
+    "Blender",
+    "Water",
+    "Rocks",
+    "Sharp",
+    "Curves",
+    "Blocky",
+    "Zoned",
+  ],
+  blocks: ["Platform", "Canopy"],
+  base: ["Void", "NoStadium", "Stadium", "WaterBase"],
+};
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -258,22 +253,40 @@ export function UploadForm() {
                         </span>
                       </FormLabel>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {VALID_TAGS.map((tag) => (
-                          <Button
-                            key={tag}
-                            type="button"
-                            variant={
-                              field.value.includes(tag) ? "default" : "outline"
-                            }
-                            className="px-3 py-1 text-xs"
-                            onClick={() =>
-                              onTagToggle(tag, field.value, field.onChange)
-                            }
-                            aria-pressed={field.value.includes(tag)}
-                          >
-                            {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                          </Button>
-                        ))}
+                        {Object.entries(VALID_TAGS).map(
+                          ([category, tagList]) => (
+                            <div key={category} className="mb-2 mr-2">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    className="capitalize flex justify-between min-w-[120px]"
+                                  >
+                                    {category}
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56 max-h-[300px] overflow-y-auto">
+                                  {tagList.map((tag) => (
+                                    <DropdownMenuCheckboxItem
+                                      key={tag}
+                                      checked={field.value.includes(tag)}
+                                      onCheckedChange={() =>
+                                        onTagToggle(
+                                          tag,
+                                          field.value,
+                                          field.onChange
+                                        )
+                                      }
+                                    >
+                                      {tag}
+                                    </DropdownMenuCheckboxItem>
+                                  ))}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          )
+                        )}
                       </div>
                       <FormMessage />
                     </FormItem>
