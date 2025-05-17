@@ -43,13 +43,36 @@ const VALID_TAGS = [
   "Grass",
   "Dirt",
   "Plastic",
+  "Wet",
+  "Reactor",
   /* Themes */
   "Dark",
   "Terrain",
   "Nature",
+  "Minimalistic",
+  "Nadeo",
+  "Complex",
+  "Abstract",
+  "Towers",
+  "MegaStructures",
+  "Immersive",
+  "Vanilla",
+  "Vanila++",
+  "Blender",
+  "Water",
+  "Rocks",
+  "Sharp",
+  "Curves",
+  "Blocky",
+  "Zoned",
   /* Blocks */
   "Platform",
   "Canopy",
+  /* Misc */
+  "Void",
+  "NoStadium",
+  "Stadium",
+  "WaterBase"
 ];
 
 const formSchema = z.object({
