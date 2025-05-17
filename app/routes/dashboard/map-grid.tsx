@@ -41,8 +41,8 @@ function SceneryCard({ item }: { item: Map }) {
   const { user } = useAuth();
 
   return (
-    <Card className="overflow-hidden" key={item.id}>
-      <Link to={`/map/${item.id}`}>
+    <Link to={`/map/${item.id}`}>
+      <Card className="overflow-hidden" key={item.id}>
         <div className="relative aspect-[3/2] overflow-hidden">
           <img
             src={
@@ -53,44 +53,45 @@ function SceneryCard({ item }: { item: Map }) {
             className="object-cover w-full h-full transition-transform hover:scale-105"
           />
         </div>
-      </Link>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="font-medium text-base">{item.title}</h3>
-            <p className="text-sm text-muted-foreground">
-              by {item.author_display}
-            </p>
+
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-medium text-base">{item.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                by {item.author_display}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2 mt-2 flex-wrap">
-          {item.tags.map((category: string) => (
-            <Badge variant="outline" className="px-2" key={category}>
-              {category}
-            </Badge>
-          ))}
-        </div>
-      </CardContent>
-      <div className="flex grow" />
-      <CardFooter className="pt-0 flex justify-between">
-        <div className="flex items-center gap-2">
-          <Eye className={`h-4 w-4`} />
-          <span className="text-sm text-muted-foreground">{item.views}</span>
-        </div>
-        <Button
-          variant="destructive"
-          size="sm"
-          className="gap-1"
-          onClick={() => {
-            // One last auth check
-            if (user?.id === item.author) {
-              deleteMap(item.id);
-            }
-          }}
-        >
-          <span>Delete</span>
-        </Button>
-      </CardFooter>
-    </Card>
+          <div className="flex gap-2 mt-2 flex-wrap">
+            {item.tags.map((category: string) => (
+              <Badge variant="outline" className="px-2" key={category}>
+                {category}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>
+        <div className="flex grow" />
+        <CardFooter className="pt-0 flex justify-between">
+          <div className="flex items-center gap-2">
+            <Eye className={`h-4 w-4`} />
+            <span className="text-sm text-muted-foreground">{item.views}</span>
+          </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-1"
+            onClick={() => {
+              // One last auth check
+              if (user?.id === item.author) {
+                deleteMap(item.id);
+              }
+            }}
+          >
+            <span>Delete</span>
+          </Button>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }
