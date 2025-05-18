@@ -5,11 +5,6 @@ import {
   Search,
   Grid3X3,
   Tag,
-  Globe,
-  Settings,
-  LayoutDashboard,
-  Upload,
-  Mail,
   UserX,
   LucideLayoutDashboard,
 } from "lucide-react";
@@ -34,10 +29,11 @@ import { Link, useLocation } from "react-router";
 import { Logo } from "./logo";
 
 import { useAppDispatch } from "~/store/store";
-import { fetchMaps } from "~/store/db";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 import { useAuth } from "~/providers/auth-provider";
+
+import { searchMaps } from "~/store/db";
 
 function Header({
   setSearchQuery,
@@ -100,15 +96,17 @@ export function Footer() {
               <Separator className="mt-2 mb-2" />
               <SidebarMenuButton tooltip="Profile" size="lg">
                 <Avatar className="h-8 w-8">
-                  {user.user_metadata.avatar_url ? (
-                    <AvatarImage src={user.user_metadata.avatar_url} />
+                  {user.avatar ? (
+                    <AvatarImage
+                      src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}`}
+                    />
                   ) : (
                     <AvatarFallback>
-                      {user.id?.[0].toUpperCase()}
+                      {user.username?.[0].toUpperCase()}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <span>{user?.user_metadata.full_name}</span>
+                <span>{user?.displayName}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </>
@@ -117,7 +115,7 @@ export function Footer() {
             <SidebarMenuButton
               tooltip="Sign in with Discord"
               size="lg"
-              onClick={() => signInWithDiscord("https://tm-bank.vercel.app/")}
+              onClick={() => signInWithDiscord()}
               className="bg-accent-foreground text-accent justify-center hover:bg-accent-foreground/90 hover:text-accent/90"
             >
               <span>Sign in</span>
@@ -137,12 +135,12 @@ export function TrackmaniaSidebar() {
   const { state } = useSidebar();
 
   React.useEffect(() => {
-    fetchMaps("", dispatch, setLocalMaps);
+    searchMaps("", dispatch, setLocalMaps);
   }, []);
 
   React.useEffect(() => {
     const timer = setTimeout(
-      () => fetchMaps(searchQuery, dispatch, setLocalMaps),
+      () => searchMaps(searchQuery, dispatch, setLocalMaps),
       300
     );
     return () => clearTimeout(timer);

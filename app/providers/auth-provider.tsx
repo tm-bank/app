@@ -5,14 +5,21 @@ import React, {
   useState,
   type ReactNode,
 } from "react";
-import { type Session, type User } from "@supabase/supabase-js";
-import { supabase } from "~/supabase";
+
+const API_URL = import.meta.env.VITE_API_URL as string;
+
+interface User {
+  discordId: string;
+  username: string;
+  avatar: string;
+  email: string;
+  displayName: string;
+}
 
 interface AuthContextProps {
   user: User | null;
-  session: Session | null;
-  signInWithDiscord: (redirectTo?: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  signInWithDiscord: () => void;
+  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -22,46 +29,43 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    const init = async () => {
-      if (!supabase) return;
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-    };
-    init();
-
-    if (!supabase) return;
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+  const fetchUser = async () => {
+    try {
+      const res = await fetch(`${API_URL}/me`, {
+        credentials: "include",
+        headers: {
+          "x-auth-key": import.meta.env.VITE_AUTH_KEY || "",
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+      } else {
+        setUser(null);
       }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
-  const signInWithDiscord = async (redirectTo?: string) => {
-    if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
-      provider: "discord",
-      options: redirectTo ? { redirectTo } : undefined,
-    });
+    } catch {
+      setUser(null);
+    }
   };
 
-  const signOut = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const signInWithDiscord = () => {
+    window.location.href = `${API_URL}/auth/callback`;
+  };
+
+  const signOut = () => {
+    //!TODO: Call logout endpoint
+    setUser(null);
+    window.location.href = "/";
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, signInWithDiscord, signOut }}>
+    <AuthContext.Provider value={{ user, signInWithDiscord, signOut }}>
       {children}
     </AuthContext.Provider>
   );
@@ -74,5 +78,3 @@ export const useAuth = (): AuthContextProps => {
   }
   return context;
 };
-
-export { supabase };

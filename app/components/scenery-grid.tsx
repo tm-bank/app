@@ -1,13 +1,12 @@
 "use client";
 
-import { ArrowUpRight, Download, Eye, Flag } from "lucide-react";
+import { ArrowUpRight, Eye, Flag } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useAppSelector } from "~/store/store";
-import type { Map } from "~/types";
-import { bumpViews } from "~/store/db";
+import type { MapDataRow } from "~/types";
 import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -39,7 +38,7 @@ export function SceneryGrid() {
   );
 }
 
-function SceneryCard({ item }: { item: Map }) {
+function SceneryCard({ item }: { item: MapDataRow }) {
   const { user } = useAuth();
 
   return (
@@ -47,11 +46,7 @@ function SceneryCard({ item }: { item: Map }) {
       <Card className="overflow-hidden" key={item.id}>
         <div className="relative aspect-[3/2] overflow-hidden">
           <img
-            src={
-              "https://wgztuhhevsawvztlqsfp.supabase.co/storage/v1/object/public/images//" +
-                item.images[0] || "placeholder.svg"
-            }
-            alt={item.title}
+            src={item.map.images[0] || "placeholder.svg"}
             className="object-cover w-full h-full transition-transform hover:scale-105"
           />
         </div>
@@ -59,19 +54,19 @@ function SceneryCard({ item }: { item: Map }) {
         <CardContent className="p-4">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-medium text-base">{item.title}</h3>
+              <h3 className="font-medium text-base">{item.map.title}</h3>
               <p className="text-sm text-muted-foreground">
                 by{" "}
-                {user?.user_metadata.full_name == item.author_display
+                {user?.displayName == item.authorDisplay
                   ? "you!"
-                  : item.author_display !== null
-                  ? item.author_display
+                  : item.authorDisplay !== null
+                  ? item.authorDisplay
                   : "unknown"}
               </p>
             </div>
           </div>
           <div className="flex gap-2 mt-2 flex-wrap">
-            {item.tags.map((category: string) => (
+            {item.map.tags.map((category: string) => (
               <Badge variant="outline" className="px-2" key={category}>
                 {category}
               </Badge>
@@ -81,7 +76,9 @@ function SceneryCard({ item }: { item: Map }) {
         <CardFooter className="pt-0 flex justify-between">
           <div className="flex items-center gap-2">
             <Eye className={`h-4 w-4`} />
-            <span className="text-sm text-muted-foreground">{item.views}</span>
+            <span className="text-sm text-muted-foreground">
+              {item.map.views}
+            </span>
           </div>
           <div className="flex flex-row gap-2">
             <Tooltip>
@@ -93,10 +90,9 @@ function SceneryCard({ item }: { item: Map }) {
                   onClick={async () => {
                     const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
 
-                    const reporter =
-                      user?.user_metadata.full_name ?? "anonymous";
+                    const reporter = user?.username ?? "anonymous";
 
-                    const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
+                    const message = `Report from ${reporter} of map: ${item.map.title} (${item.id})`;
 
                     const result = await sendDiscordWebhook(reportURL, message);
 
@@ -116,9 +112,9 @@ function SceneryCard({ item }: { item: Map }) {
               size="sm"
               className="gap-1"
               onClick={() => {
-                bumpViews(item.id);
-                if (item.tmx_link) {
-                  window.open(item.tmx_link);
+                //!TODO: Call the views endpoint
+                if (item.map.viewLink) {
+                  window.open(item.map.viewLink);
                 }
               }}
             >
