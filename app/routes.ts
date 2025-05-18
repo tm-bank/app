@@ -4,4 +4,5 @@ export default [
   route("/", "routes/home.tsx"),
   route("/dashboard", "routes/dashboard.tsx"),
   route("/map/:mapId", "routes/map.tsx"),
+  route("/auth/callback", "routes/auth.tsx")
 ] satisfies RouteConfig;
