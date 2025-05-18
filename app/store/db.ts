@@ -50,3 +50,21 @@ export async function searchMaps(
     toast.error(`Failed to search maps: ${e}`);
   }
 }
+
+export async function getMap(id: string = "") {
+  try {
+    const res = await fetch(`${API_URL}/maps/${id}`, {
+      credentials: "include",
+      headers: {
+        "x-auth-key": import.meta.env.VITE_AUTH_KEY || "",
+      },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch (e) {
+    toast.error(`Failed to get map: ${e}`);
+  }
+}
