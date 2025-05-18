@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import mapsSlice from "./maps-slice";
 import { useDispatch, useSelector, useStore } from "react-redux";
 

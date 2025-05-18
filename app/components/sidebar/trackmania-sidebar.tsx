@@ -98,7 +98,7 @@ export function Footer() {
                 <Avatar className="h-8 w-8">
                   {user.avatar ? (
                     <AvatarImage
-                      src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}`}
+                      src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`}
                     />
                   ) : (
                     <AvatarFallback>

@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { MapDataRow } from "~/types";
+import type { Map } from "~/types";
 
 export interface MapsState {
-  maps: MapDataRow[];
+  maps: Map[];
 }
 
 const initialMapsState = {
@@ -13,7 +13,7 @@ const mapsSlice = createSlice({
   name: "maps",
   initialState: initialMapsState,
   reducers: {
-    setMaps(state, action: { payload: MapDataRow[] }) {
+    setMaps(state, action: { payload: Map[] }) {
       state.maps = action.payload;
     },
   },

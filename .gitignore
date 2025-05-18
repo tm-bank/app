@@ -4,4 +4,7 @@
 # React Router
 /.react-router/
 /build/
-.env.local
+.env
+
+# Prisma
+generated/

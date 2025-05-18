@@ -5,16 +5,9 @@ import React, {
   useState,
   type ReactNode,
 } from "react";
+import type { User } from "~/types";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
-
-interface User {
-  discordId: string;
-  username: string;
-  avatar: string;
-  email: string;
-  displayName: string;
-}
 
 interface AuthContextProps {
   user: User | null;
@@ -33,18 +26,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch(`${API_URL}/me`, {
-        credentials: "include",
-        headers: {
-          "x-auth-key": import.meta.env.VITE_AUTH_KEY || "",
-        },
+      const res = await fetch(`${API_URL}/auth/me`, { credentials: "include" });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setUser({
+        id: data.id,
+        username: data.username,
+        avatar: data.avatar,
+        displayName: data.global_name || data.username,
+        maps: [],
       });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-      } else {
-        setUser(null);
-      }
     } catch {
       setUser(null);
     }
@@ -55,11 +46,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const signInWithDiscord = () => {
-    window.location.href = `${API_URL}/auth/callback`;
+    window.location.href = `${API_URL}/auth/discord/login`;
   };
 
-  const signOut = () => {
-    //!TODO: Call logout endpoint
+  const signOut = async () => {
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
     setUser(null);
     window.location.href = "/";
   };

@@ -1,15 +1,18 @@
 export interface Map {
+  id: string;
   title: string;
   views: number;
   viewLink: string;
   images: string[];
   tags: string[];
+  createdAt: string;
+  authorId: string;
 }
 
-export interface MapDataRow {
+export interface User {
   id: string;
-  map: Map;
-  createdAt: Date;
-  author: string; // username
-  authorDisplay: string; // display name
+  username: string;
+  displayName: string;
+  avatar: string;
+  maps: Map[];
 }
