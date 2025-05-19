@@ -10,17 +10,17 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { useEffect, useState } from "react";
-import type { MapDataRow } from "~/types";
+import { type User, type Map } from "~/types";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
-import { getMap } from "~/store/db";
+import { getMap, getUser } from "~/store/db";
 
 export function MapPage() {
   const { mapId } = useParams<{ mapId: string }>();
-
-  const [map, setMap] = useState<MapDataRow>();
+  const [map, setMap] = useState<Map>();
+  const [author, setAuthor] = useState<User>();
 
   useEffect(() => {
     const fetchMap = async () => {
@@ -35,6 +35,20 @@ export function MapPage() {
 
     fetchMap();
   }, []);
+
+  useEffect(() => {
+    const fetchAuthor = async () => {
+      const author = await getUser(map?.authorId);
+
+      if (!author) {
+        toast.error("Failed to get user!");
+      } else {
+        setAuthor(author);
+      }
+    };
+
+    fetchAuthor();
+  });
 
   return (
     <Wrapper>
@@ -56,19 +70,19 @@ export function MapPage() {
           <div className="space-y-6">
             <Card className="w-full h-full">
               <CardHeader>
-                <CardTitle>{map.map.title}</CardTitle>
-                <CardDescription>{map.authorDisplay}</CardDescription>
+                <CardTitle>{map.title}</CardTitle>
+                <CardDescription>{map.authorId}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2 pb-2 flex-wrap">
-                  {map.map.tags.map((category: string) => (
+                  {map.tags.map((category: string) => (
                     <Badge variant="outline" className="p-2" key={category}>
                       {category}
                     </Badge>
                   ))}
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {map.map.images.map((url) => (
+                  {map.images.map((url) => (
                     <img
                       src={url}
                       className="border border-border p-2 rounded-xl"
@@ -80,8 +94,8 @@ export function MapPage() {
               <CardFooter>
                 <Button
                   onClick={() => {
-                    if (map.map.viewLink) {
-                      window.open(map.map.viewLink);
+                    if (map.viewLink) {
+                      window.open(map.viewLink);
                     }
                   }}
                 >

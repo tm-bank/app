@@ -38,7 +38,7 @@ export function SceneryGrid() {
   );
 }
 
-async function SceneryCard({ item }: { item: Map }) {
+export function SceneryCard({ item }: { item: Map }) {
   const { user } = useAuth();
   const [author, setAuthor] = useState<User>();
 
@@ -67,9 +67,11 @@ async function SceneryCard({ item }: { item: Map }) {
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-medium text-base">{item.title}</h3>
-              {author && <p className="text-sm text-muted-foreground">
-                by {user?.id == author.id ? "you!" : author.displayName}
-              </p>}
+              {author && (
+                <p className="text-sm text-muted-foreground">
+                  by {user?.id == author.id ? "you!" : author.displayName}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex gap-2 mt-2 flex-wrap">
