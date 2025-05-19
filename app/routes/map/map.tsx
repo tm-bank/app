@@ -33,8 +33,13 @@ export function MapPage() {
       }
     };
 
+    fetchMap();
+  }, []);
+
+  useEffect(() => {
     const fetchAuthor = async () => {
       if (!map) {
+        console.log("map does not exist, ignoring fetchAuthor");
         return;
       }
       const author = await findAuthorFromMap(map!);
@@ -43,17 +48,11 @@ export function MapPage() {
         toast.error("Failed to get author!");
       } else {
         setAuthor(author);
-        fetchMap();
       }
     };
 
-    const fetchAll = async () => {
-      await fetchMap();
-      await fetchAuthor();
-    };
-
-    fetchAll();
-  }, []);
+    fetchAuthor();
+  }, [map]);
 
   return (
     <Wrapper>
