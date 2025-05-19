@@ -111,7 +111,7 @@ export async function uploadMap(data: {
   tags: string[];
   images: string[];
 }) {
-  const res = await fetch("/api/maps", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
