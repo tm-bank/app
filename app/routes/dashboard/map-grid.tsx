@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import type { Map, User } from "~/types";
 
 function filterMaps(maps: Map[], currentUser: User) {
-  return maps.filter((map) => map.authorId === currentUser.id);
+  return maps.filter((map) => map && map.authorId === currentUser.id);
 }
 
 export function MapGrid() {
