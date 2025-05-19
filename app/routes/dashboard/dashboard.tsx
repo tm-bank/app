@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import Wrapper from "~/wrapper";
-// import { UploadForm } from "./upload-form";
+import { UploadForm } from "./upload-form";
 import { MapGrid } from "./map-grid";
 
 export function meta() {
@@ -29,7 +29,7 @@ export default function Dash() {
               <MapGrid />
             </TabsContent>
             <TabsContent value="upload" className="space-y-4">
-              {/* <UploadForm /> */}
+              <UploadForm />
             </TabsContent>
           </Tabs>
         </div>
