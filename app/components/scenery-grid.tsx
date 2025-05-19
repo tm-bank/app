@@ -48,7 +48,7 @@ export function SceneryCard({
   dashboard?: boolean;
 }) {
   if (!item) return <></>;
-  
+
   const { user } = useAuth();
   const [author, setAuthor] = useState<User>();
 
@@ -107,7 +107,9 @@ export function SceneryCard({
                 <Button
                   variant={"outline"}
                   size={"sm"}
-                  onClick={async () => {
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
                     const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
 
                     const reporter = user?.username ?? "anonymous";
@@ -131,8 +133,9 @@ export function SceneryCard({
               variant="outline"
               size="sm"
               className="gap-1"
-              onClick={() => {
-                //!TODO: Call the views endpoint
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 if (item.viewLink) {
                   window.open(item.viewLink);
                 }
@@ -146,8 +149,9 @@ export function SceneryCard({
                 variant="destructive"
                 size="sm"
                 className="gap-1"
-                onClick={() => {
-                  //!TODO Refactor so "admin" users automatically pass this check.
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
                   if (user?.id === item.authorId) {
                     deleteMap(item.id);
                   }
