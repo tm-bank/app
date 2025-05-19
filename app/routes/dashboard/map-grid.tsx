@@ -7,6 +7,7 @@ import type { Map } from "~/types";
 import { deleteMap } from "~/store/db";
 import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
+import { SceneryCard } from "~/components/scenery-grid";
 
 export function MapGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -28,65 +29,9 @@ export function MapGrid() {
         {maps.maps
           .filter((map) => map.authorId == user?.id)
           .map((item) => (
-            <SceneryCard key={item.id} item={item} />
+            <SceneryCard key={item.id} item={item} dashboard />
           ))}
       </div>
     </div>
-  );
-}
-
-function SceneryCard({ item }: { item: Map }) {
-  const { user } = useAuth();
-
-  return (
-    <Link to={`/map/${item.id}`}>
-      <Card className="overflow-hidden" key={item.id}>
-        <div className="relative aspect-[3/2] overflow-hidden">
-          <img
-            src={item.images[0] || "placeholder.svg"}
-            alt={item.title}
-            className="object-cover w-full h-full transition-transform hover:scale-105"
-          />
-        </div>
-
-        <CardContent className="p-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-medium text-base">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                by {item.authorId}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {item.tags.map((category: string) => (
-              <Badge variant="outline" className="px-2" key={category}>
-                {category}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-        <div className="flex grow" />
-        <CardFooter className="pt-0 flex justify-between">
-          <div className="flex items-center gap-2">
-            <Eye className={`h-4 w-4`} />
-            <span className="text-sm text-muted-foreground">{item.views}</span>
-          </div>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="gap-1"
-            onClick={() => {
-              //!TODO Refactor so "admin" users automatically pass this check.
-              if (user?.id === item.authorId) {
-                deleteMap(item.id);
-              }
-            }}
-          >
-            <span>Delete</span>
-          </Button>
-        </CardFooter>
-      </Card>
-    </Link>
   );
 }

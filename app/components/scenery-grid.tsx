@@ -11,7 +11,7 @@ import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import { sendDiscordWebhook } from "~/store/webhook";
-import { getUser } from "~/store/db";
+import { deleteMap, getUser } from "~/store/db";
 import { useEffect, useState } from "react";
 
 export function SceneryGrid() {
@@ -40,7 +40,13 @@ export function SceneryGrid() {
   );
 }
 
-export function SceneryCard({ item }: { item: Map }) {
+export function SceneryCard({
+  item,
+  dashboard,
+}: {
+  item: Map;
+  dashboard?: boolean;
+}) {
   const { user } = useAuth();
   const [author, setAuthor] = useState<User>();
 
@@ -130,6 +136,21 @@ export function SceneryCard({ item }: { item: Map }) {
               <ArrowUpRight className="h-4 w-4" />
               <span>View</span>
             </Button>
+            {dashboard && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  //!TODO Refactor so "admin" users automatically pass this check.
+                  if (user?.id === item.authorId) {
+                    deleteMap(item.id);
+                  }
+                }}
+              >
+                <span>Delete</span>
+              </Button>
+            )}
           </div>
         </CardFooter>
       </Card>
