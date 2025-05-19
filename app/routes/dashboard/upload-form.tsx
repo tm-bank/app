@@ -86,18 +86,15 @@ const formSchema = z.object({
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
   images: z
-    .array(z.instanceof(File))
-    .min(1, { message: "Please upload at least one image." }),
+    .array(z.string().url())
+    .min(1, { message: "Please provide at least one image URL." }),
 });
 
 export function UploadForm() {
-  const [previewImages, setPreviewImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
   const dispatch = useDispatch();
-
-  // Add a ref to track whether a submission is in progress
   const isSubmittingRef = useRef(false);
 
   type FormValues = z.infer<typeof formSchema>;
@@ -111,27 +108,21 @@ export function UploadForm() {
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
-      setPreviewImages((prev) => [...prev, ...files]);
-      setPreviewUrls((prev) => [
-        ...prev,
-        ...files.map((file) => URL.createObjectURL(file)),
-      ]);
-      form.setValue("images", [...form.getValues("images"), ...files]);
+  const handleAddImageUrl = () => {
+    const url = prompt("Enter image URL:");
+    if (url && /^https?:\/\/.+\.(jpg|jpeg|png|webp)$/i.test(url)) {
+      setImageUrls((prev) => [...prev, url]);
+      form.setValue("images", [...form.getValues("images"), url]);
+    } else if (url) {
+      toast.error("Please enter a valid image URL (jpg, jpeg, png, webp).");
     }
   };
 
-  const clearPreviewImage = (index: number) => {
-    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
-    setPreviewUrls((prev) => {
-      URL.revokeObjectURL(prev[index]);
-      return prev.filter((_, i) => i !== index);
-    });
+  const clearImageUrl = (index: number) => {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
     const newImages = form
       .getValues("images")
-      .filter((_: File, i: number) => i !== index);
+      .filter((_: string, i: number) => i !== index);
     form.setValue("images", newImages);
   };
 
@@ -159,18 +150,11 @@ export function UploadForm() {
     try {
       if (!user) {
         toast.error("You must be signed in to upload maps.");
-        console.log("Not authenticated");
         return;
       }
 
-      if (values.view_link === undefined) {
-        console.log("Missing map image or view link!");
-        return;
-      }
-
-
-
-      if (values.images.length === 0) {
+      if (!values.images || values.images.length === 0) {
+        toast.error("Please provide at least one image URL.");
         return;
       }
 
@@ -180,16 +164,11 @@ export function UploadForm() {
 
       toast.success("Map uploaded successfully!");
       form.reset();
-
-      // Clear all previews
-      previewUrls.forEach((url) => URL.revokeObjectURL(url));
-      setPreviewImages([]);
-      setPreviewUrls([]);
+      setImageUrls([]);
     } catch (error) {
       toast.error(`Error uploading map: ${error}`);
     } finally {
       setIsUploading(false);
-      // Reset the submission flag with a small delay to prevent rapid re-submissions
       setTimeout(() => {
         isSubmittingRef.current = false;
       }, 1000);
@@ -313,9 +292,9 @@ export function UploadForm() {
                     </span>
                   </div>
                   <div className="mt-1.5">
-                    {previewUrls.length > 0 ? (
+                    {imageUrls.length > 0 ? (
                       <div className="flex flex-wrap gap-4">
-                        {previewUrls.map((url, idx) => (
+                        {imageUrls.map((url, idx) => (
                           <div
                             key={url}
                             className="relative w-32 h-32 rounded-lg overflow-visible"
@@ -325,7 +304,7 @@ export function UploadForm() {
                               variant="destructive"
                               size="icon"
                               className="absolute top-2 right-2 z-10 h-6 w-6"
-                              onClick={() => clearPreviewImage(idx)}
+                              onClick={() => clearImageUrl(idx)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -335,53 +314,31 @@ export function UploadForm() {
                             />
                           </div>
                         ))}
-                        <label
-                          htmlFor="preview-image"
-                          className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/40 hover:bg-muted/60"
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-32 h-32 flex flex-col items-center justify-center"
+                          onClick={handleAddImageUrl}
                         >
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                            <p className="mb-2 text-xs text-muted-foreground">
-                              Add more
-                            </p>
-                          </div>
-                          <Input
-                            id="preview-image"
-                            type="file"
-                            className="hidden"
-                            accept="image/png, image/jpeg, image/webp"
-                            multiple
-                            onChange={handleImageChange}
-                          />
-                        </label>
+                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                          <span>Add URL</span>
+                        </Button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center w-full">
-                        <label
-                          htmlFor="preview-image"
-                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/40 hover:bg-muted/60"
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full h-32 flex flex-col items-center justify-center"
+                          onClick={handleAddImageUrl}
                         >
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                            <p className="mb-2 text-sm text-muted-foreground">
-                              <span className="font-semibold">
-                                Click to upload
-                              </span>{" "}
-                              or drag and drop
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              PNG, JPG or WEBP (MAX. 5MB)
-                            </p>
-                          </div>
-                          <Input
-                            id="preview-image"
-                            type="file"
-                            className="hidden"
-                            accept="image/png, image/jpeg, image/webp"
-                            multiple
-                            onChange={handleImageChange}
-                          />
-                        </label>
+                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                          <span>
+                            <span className="font-semibold">
+                              Click to add image URL
+                            </span>
+                          </span>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -392,7 +349,7 @@ export function UploadForm() {
             <Button
               type="submit"
               className="w-full md:w-auto"
-              disabled={previewImages.length === 0 || isUploading}
+              disabled={imageUrls.length === 0 || isUploading}
             >
               {isUploading ? "Uploading..." : "Upload Map"}
             </Button>
