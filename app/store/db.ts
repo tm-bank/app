@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { Map, User } from "~/types";
 import type { AppDispatch } from "./store";
 import { toast } from "sonner";
+import mapsSlice from "./maps-slice";
 
 export async function searchMaps(
   q: string = "",
@@ -33,7 +34,9 @@ export async function searchMaps(
     );
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
+
     setLocalMaps(data);
+    dispatch(mapsSlice.actions.setMaps(data));
   } catch (e) {
     toast.error(`Failed to search maps: ${e}`);
   }
