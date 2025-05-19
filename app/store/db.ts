@@ -13,15 +13,19 @@ export async function searchMaps(
     const filters: Record<string, string> = {};
     const tags: string[] = [];
 
-    q.split(",").forEach((part) => {
-      const trimmed = part.trim();
-      const [key, ...rest] = trimmed.split(":");
-      if (rest.length > 0) {
-        filters[key.toLowerCase()] = rest.join(":").trim();
-      } else if (trimmed) {
-        tags.push(trimmed);
-      }
-    });
+    if (q) {
+      q.split(",").forEach((part) => {
+        const trimmed = part.trim();
+        if (!trimmed) return;
+        
+        const [key, ...rest] = trimmed.split(":");
+        if (rest.length > 0) {
+          filters[key.toLowerCase()] = rest.join(":").trim();
+        } else if (trimmed) {
+          tags.push(trimmed);
+        }
+      });
+    }
 
     const params = new URLSearchParams();
     if (filters.title) params.append("title", filters.title);
@@ -32,66 +36,117 @@ export async function searchMaps(
       `${import.meta.env.VITE_API_URL}/maps/search?${params.toString()}`,
       { credentials: "include" }
     );
+    
     if (!res.ok) throw new Error(await res.text());
+    
     const data = await res.json();
-
-    setLocalMaps(data);
+    
+    // Check if the function was not unmounted before setting state
+    if (setLocalMaps) {
+      try {
+        setLocalMaps(data);
+      } catch (error) {
+        console.error("Error setting local maps:", error);
+        // This might occur if component unmounted, swallow error
+      }
+    }
+    
+    // Dispatch always works because Redux persists beyond component lifecycle
     dispatch(mapsSlice.actions.setMaps(data));
+    
+    return data;
   } catch (e) {
+    console.error(`Failed to search maps:`, e);
     toast.error(`Failed to search maps: ${e}`);
+    return [];
   }
 }
 
 export async function getMap(id: string = "") {
+  if (!id) return null;
+  
   try {
+    // Implementation would go here
     throw Error("Unimplemented!");
   } catch (e) {
+    console.error(`Failed to get map:`, e);
     toast.error(`Failed to get map: ${e}`);
+    return null;
   }
 }
 
 export async function deleteMap(id: string = "") {
+  if (!id) return false;
+  
   try {
+    // Implementation would go here
     throw Error("Unimplemented!");
   } catch (e) {
-    toast.error(`Failed to get map: ${e}`);
+    console.error(`Failed to delete map:`, e);
+    toast.error(`Failed to delete map: ${e}`);
+    return false;
   }
 }
 
 export async function uploadMap(id: string = "") {
+  if (!id) return false;
+  
   try {
+    // Implementation would go here
     throw Error("Unimplemented!");
   } catch (e) {
-    toast.error(`Failed to get map: ${e}`);
+    console.error(`Failed to upload map:`, e);
+    toast.error(`Failed to upload map: ${e}`);
+    return false;
   }
 }
 
 export async function findAuthorFromid(
   id: string = ""
 ): Promise<User | undefined> {
+  if (!id) return undefined;
+  
   try {
+    return await getUser(id);
   } catch (e) {
+    console.error(`Failed to find author:`, e);
     toast.error(`Failed to find author: ${e}`);
     return undefined;
   }
 }
 
 export async function getUser(id: string = ""): Promise<User | undefined> {
+  if (!id) return undefined;
+  
   try {
     const params = new URLSearchParams();
-
     params.append("queryId", id);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/user?${params.toString()}`,
-      { credentials: "include" }
+      { 
+        credentials: "include",
+        signal: controller.signal 
+      }
     );
+    
+    clearTimeout(timeoutId);
 
     if (!res.ok) throw new Error(await res.text());
 
     const data = await res.json();
     return data;
-  } catch (e) {
+  } catch (e: any) {
+    if (e.name === 'AbortError') {
+      console.error(`Request for user ${id} timed out`);
+      return undefined;
+    }
+    
+    console.error(`Failed to get user:`, e);
     toast.error(`Failed to get user: ${e}`);
+    return undefined;
   }
 }

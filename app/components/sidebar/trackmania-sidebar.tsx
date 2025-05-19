@@ -99,14 +99,15 @@ export function Footer() {
                   {user.avatar ? (
                     <AvatarImage
                       src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`}
+                      alt={user.username || "User"}
                     />
                   ) : (
                     <AvatarFallback>
-                      {user.username?.[0].toUpperCase()}
+                      {user.username?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <span>{user?.displayName}</span>
+                <span>{user?.displayName || user?.username}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </>
@@ -133,27 +134,58 @@ export function TrackmaniaSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [localMaps, setLocalMaps] = React.useState<any[]>([]);
   const { state } = useSidebar();
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    searchMaps("", dispatch, setLocalMaps);
-  }, []);
+    let isMounted = true;
+
+    const fetchInitialMaps = async () => {
+      setIsLoading(true);
+      try {
+        await searchMaps("", dispatch, (maps) => {
+          if (isMounted) setLocalMaps(maps);
+        });
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchInitialMaps();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch]);
 
   React.useEffect(() => {
-    const timer = setTimeout(
-      () => searchMaps(searchQuery, dispatch, setLocalMaps),
-      300
-    );
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+    let isMounted = true;
+    const timer = setTimeout(async () => {
+      try {
+        await searchMaps(searchQuery, dispatch, (maps) => {
+          if (isMounted) setLocalMaps(maps);
+        });
+      } catch (error) {
+        console.error("Error searching maps:", error);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      isMounted = false;
+    };
+  }, [searchQuery, dispatch]);
 
   const tagCounts = React.useMemo(() => {
+    if (isLoading) return {};
     return localMaps.reduce<Record<string, number>>((acc, map) => {
-      map.tags.forEach((tag: string) => {
-        acc[tag] = (acc[tag] || 0) + 1;
-      });
+      if (map.tags && Array.isArray(map.tags)) {
+        map.tags.forEach((tag: string) => {
+          acc[tag] = (acc[tag] || 0) + 1;
+        });
+      }
       return acc;
     }, {});
-  }, [localMaps]);
+  }, [localMaps, isLoading]);
 
   const sortedTags = React.useMemo(() => {
     return Object.entries(tagCounts)
@@ -202,17 +234,31 @@ export function TrackmaniaSidebar() {
           <SidebarGroupLabel>Tags</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sortedTags.map((tag) => (
-                <SidebarMenuItem key={tag}>
-                  <SidebarMenuButton onClick={() => setSearchQuery(tag)}>
-                    <Tag className="h-4 w-4" />
-                    <span>{tag}</span>
-                    <Badge variant="outline" className="ml-auto">
-                      {localMaps.filter((m) => m.tags.includes(tag)).length}
-                    </Badge>
+              {isLoading ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton disabled>
+                    <span>Loading tags...</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+              ) : sortedTags.length > 0 ? (
+                sortedTags.map((tag) => (
+                  <SidebarMenuItem key={tag}>
+                    <SidebarMenuButton onClick={() => setSearchQuery(tag)}>
+                      <Tag className="h-4 w-4" />
+                      <span>{tag}</span>
+                      <Badge variant="outline" className="ml-auto">
+                        {localMaps.filter((m) => m.tags?.includes(tag)).length}
+                      </Badge>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))
+              ) : (
+                <SidebarMenuItem>
+                  <SidebarMenuButton disabled>
+                    <span>No tags found</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
