@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
-import { getMap, getUser } from "~/store/db";
+import { findAuthorFromId, getMap } from "~/store/db";
 
 export function MapPage() {
   const { mapId } = useParams<{ mapId: string }>();
@@ -34,7 +34,7 @@ export function MapPage() {
     };
 
     const fetchAuthor = async () => {
-      const author = await getUser(map?.authorId);
+      const author = await findAuthorFromId(map?.authorId);
 
       if (!author) {
         toast.error("Failed to get author!");

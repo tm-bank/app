@@ -148,7 +148,7 @@ export async function uploadMap(data: {
   return await res.json();
 }
 
-export async function findAuthorFromid(
+export async function findAuthorFromId(
   id: string = ""
 ): Promise<User | undefined> {
   if (!id) return undefined;
