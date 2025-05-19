@@ -245,7 +245,9 @@ export function TrackmaniaSidebar() {
                       <Tag className="h-4 w-4" />
                       <span>{tag}</span>
                       <Badge variant="outline" className="ml-auto">
-                        {localMaps.filter((m) => m.tags?.includes(tag)).length}
+                        {localMaps.filter(
+                          (m) => m && Array.isArray(m.tags) && m.tags.includes(tag)
+                        ).length}
                       </Badge>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
