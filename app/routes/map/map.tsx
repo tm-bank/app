@@ -21,6 +21,7 @@ export function MapPage() {
   const { mapId } = useParams<{ mapId: string }>();
   const [map, setMap] = useState<Map>();
   const [author, setAuthor] = useState<User>();
+  const [openImage, setOpenImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMap = async () => {
@@ -91,11 +92,26 @@ export function MapPage() {
                   {map.images.map((url) => (
                     <img
                       src={url}
-                      className="border border-border p-2 rounded-xl"
+                      className="border border-border p-2 rounded-xl cursor-pointer"
                       key={url}
+                      onClick={() => setOpenImage(url)}
+                      alt="Map"
                     />
                   ))}
                 </div>
+                {openImage && (
+                  <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+                    onClick={() => setOpenImage(null)}
+                  >
+                    <img
+                      src={openImage}
+                      alt="Large"
+                      className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                )}
               </CardContent>
               <CardFooter>
                 <Button
