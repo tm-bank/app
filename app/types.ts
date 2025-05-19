@@ -1,7 +1,7 @@
 export interface Map {
   id: string;
   title: string;
-  views: number;
+  votes: number;
   viewLink: string;
   images: string[];
   tags: string[];
@@ -15,4 +15,5 @@ export interface User {
   displayName: string;
   avatar: string;
   maps: Map[];
+  votes: string[];
 }

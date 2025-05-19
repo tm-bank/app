@@ -195,3 +195,33 @@ export async function getUser(id: string = ""): Promise<User | undefined> {
     return undefined;
   }
 }
+
+export async function castVote(
+  user: User,
+  map: Map,
+  up: boolean
+): Promise<boolean> {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/vote`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        mapId: map.id,
+        up,
+      }),
+    });
+
+    if (!res.ok) {
+      toast.error("Failed to cast vote.");
+      return false;
+    }
+
+    toast.success(up ? "Upvoted!" : "Downvoted!");
+    return true;
+  } catch (e) {
+    toast.error("Failed to cast vote.");
+    return false;
+  }
+}

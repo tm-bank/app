@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Eye, Flag } from "lucide-react";
+import { ArrowBigUp, ArrowUpRight, Eye, Flag } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
@@ -11,7 +11,7 @@ import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import { sendDiscordWebhook } from "~/store/webhook";
-import { deleteMap, getUser } from "~/store/db";
+import { castVote, deleteMap, getUser } from "~/store/db";
 import { useEffect, useState } from "react";
 
 export function SceneryGrid() {
@@ -51,6 +51,7 @@ export function SceneryCard({
 
   const { user } = useAuth();
   const [author, setAuthor] = useState<User>();
+  const [isVoting, setIsVoting] = useState(false);
 
   useEffect(() => {
     async function fetchAuthor() {
@@ -94,9 +95,43 @@ export function SceneryCard({
       </CardContent>
       <CardFooter className="pt-0 flex justify-between">
         <div className="flex items-center gap-2">
-          <Eye className={`h-4 w-4`} />
+          <Button
+            variant={"outline"}
+            size={"sm"}
+            disabled={isVoting || !user}
+            onClick={async (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+
+              if (!user) {
+                toast.error("You must be signed in to vote.");
+                return;
+              }
+
+              if (user.votes.includes(item.id)) {
+                toast.info("You have already voted for this map.");
+                return;
+              }
+
+              setIsVoting(true);
+
+              const success = await castVote(user, item, true);
+
+              setIsVoting(false);
+              
+              if (success) {
+                toast.success("Vote cast!");
+              }
+            }}
+          >
+            <ArrowBigUp
+              className={`h-4 w-4`}
+              fill={"var(color-foreground)"}
+              fillOpacity={user?.votes.includes(item.id) ? 1 : 0}
+            />
+          </Button>
           <span className="text-sm text-muted-foreground">
-            {item && item.views}
+            {item && item.votes}
           </span>
         </div>
         <div className="flex flex-row gap-2">
