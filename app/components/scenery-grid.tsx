@@ -144,11 +144,15 @@ export function SceneryCard({
               variant="destructive"
               size="sm"
               className="gap-1"
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
                 e.preventDefault();
                 if (user?.id === item.authorId) {
-                  deleteMap(item.id);
+                  const result = await deleteMap(item.id);
+
+                  if (result) {
+                    toast.error("Successfully deleted map.");
+                  }
                 }
               }}
             >
