@@ -4,12 +4,13 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useAppSelector } from "~/store/store";
-import type { Map } from "~/types";
+import type { Map, User } from "~/types";
 import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import { sendDiscordWebhook } from "~/store/webhook";
 import { getUser } from "~/store/db";
+import { useEffect, useState } from "react";
 
 export function SceneryGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -39,11 +40,18 @@ export function SceneryGrid() {
 
 async function SceneryCard({ item }: { item: Map }) {
   const { user } = useAuth();
-  const author = await getUser(item.authorId);
+  const [author, setAuthor] = useState<User>();
 
-  if (!author) {
-    return;
-  }
+  useEffect(() => {
+    async function fetchAuthor() {
+      const author = await getUser(item.authorId);
+
+      if (author) {
+        setAuthor(author);
+      }
+    }
+    fetchAuthor();
+  }, []);
 
   return (
     <Link to={`/map/${item.id}`}>
@@ -60,7 +68,7 @@ async function SceneryCard({ item }: { item: Map }) {
             <div>
               <h3 className="font-medium text-base">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
-                by {user?.id == author.id ? "you!" : author.displayName}
+                by {user?.id == author!.id ? "you!" : author!.displayName}
               </p>
             </div>
           </div>
@@ -75,9 +83,7 @@ async function SceneryCard({ item }: { item: Map }) {
         <CardFooter className="pt-0 flex justify-between">
           <div className="flex items-center gap-2">
             <Eye className={`h-4 w-4`} />
-            <span className="text-sm text-muted-foreground">
-              {item.views}
-            </span>
+            <span className="text-sm text-muted-foreground">{item.views}</span>
           </div>
           <div className="flex flex-row gap-2">
             <Tooltip>
