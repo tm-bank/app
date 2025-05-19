@@ -2,6 +2,11 @@ import { useAppSelector } from "~/store/store";
 import { useAuth } from "~/providers/auth-provider";
 import { SceneryCard } from "~/components/scenery-grid";
 import { toast } from "sonner";
+import type { Map, User } from "~/types";
+
+function filterMaps(maps: Map[], currentUser: User) {
+  return maps.filter((map) => map.authorId === currentUser.id);
+}
 
 export function MapGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -9,6 +14,10 @@ export function MapGrid() {
 
   if (!maps) {
     toast.error("Failed to get maps!");
+  }
+
+  if (!user) {
+    toast.error("User is null!");
   }
 
   return (
@@ -25,9 +34,10 @@ export function MapGrid() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {maps &&
-          maps.maps
-            .filter((map) => map.authorId === user?.id)
-            .map((item) => <SceneryCard key={item.id} item={item} dashboard />)}
+          user &&
+          filterMaps(maps.maps, user).map((item) => (
+            <SceneryCard key={item.id} item={item} dashboard />
+          ))}
       </div>
     </div>
   );
