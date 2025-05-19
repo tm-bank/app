@@ -214,7 +214,7 @@ export async function castVote(
     });
 
     if (!res.ok) {
-      toast.error("Failed to cast vote.");
+      toast.error("Failed to cast vote");
       return false;
     }
 

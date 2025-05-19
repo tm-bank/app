@@ -108,6 +108,11 @@ export function SceneryCard({
                 return;
               }
 
+              if (user.id === item.authorId) {
+                toast.error("You cannot vote for your own map.");
+                return;
+              }
+
               if (user.votes && user.votes.includes(item.id)) {
                 toast.info("You have already voted for this map.");
                 return;
