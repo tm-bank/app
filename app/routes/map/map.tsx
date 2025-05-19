@@ -47,8 +47,12 @@ export function MapPage() {
       }
     };
 
-    fetchMap();
-    fetchAuthor();
+    const fetchAll = async () => {
+      await fetchMap();
+      await fetchAuthor();
+    };
+
+    fetchAll();
   }, []);
 
   return (
