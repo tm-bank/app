@@ -72,3 +72,23 @@ export async function findAuthorFromid(
     return undefined;
   }
 }
+
+export async function getUser(id: string = "") {
+  try {
+    const params = new URLSearchParams();
+
+    params.append("queryId", id);
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/maps/search?${params.toString()}`,
+      { credentials: "include" }
+    );
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    toast.error(`Failed to get user: ${e}`);
+  }
+}

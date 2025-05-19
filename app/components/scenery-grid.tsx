@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useAppSelector } from "~/store/store";
-import type { MapDataRow } from "~/types";
+import type { Map } from "~/types";
 import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -38,15 +38,16 @@ export function SceneryGrid() {
   );
 }
 
-function SceneryCard({ item }: { item: MapDataRow }) {
+function SceneryCard({ item }: { item: Map }) {
   const { user } = useAuth();
+  const author =
 
   return (
     <Link to={`/map/${item.id}`}>
       <Card className="overflow-hidden" key={item.id}>
         <div className="relative aspect-[3/2] overflow-hidden">
           <img
-            src={item.map.images[0] || "placeholder.svg"}
+            src={item.images[0] || "placeholder.svg"}
             className="object-cover w-full h-full transition-transform hover:scale-105"
           />
         </div>
@@ -54,10 +55,10 @@ function SceneryCard({ item }: { item: MapDataRow }) {
         <CardContent className="p-4">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-medium text-base">{item.map.title}</h3>
+              <h3 className="font-medium text-base">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
                 by{" "}
-                {user?.displayName == item.authorDisplay
+                {user?.displayName == item.a
                   ? "you!"
                   : item.authorDisplay !== null
                   ? item.authorDisplay
