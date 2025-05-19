@@ -37,7 +37,7 @@ export function MapPage() {
       const author = await getUser(map?.authorId);
 
       if (!author) {
-        toast.error("Failed to get user!");
+        toast.error("Failed to get author!");
       } else {
         setAuthor(author);
         fetchMap();
