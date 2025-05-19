@@ -55,114 +55,108 @@ export function SceneryCard({
   useEffect(() => {
     async function fetchAuthor() {
       const author = await getUser(item.authorId);
-
-      if (author) {
-        setAuthor(author);
-      }
+      if (author) setAuthor(author);
     }
     fetchAuthor();
   }, []);
 
   return (
-    <Link to={`/map/${item.id}`}>
-      <Card className="overflow-hidden" key={item.id}>
-        <div className="relative aspect-[3/2] overflow-hidden">
+    <Card className="overflow-hidden" key={item.id}>
+      <div className="relative aspect-[3/2] overflow-hidden">
+        <Link to={`/map/${item.id}`}>
           <img
             src={item.images[0] || "placeholder.svg"}
             className="object-cover w-full h-full transition-transform hover:scale-105"
           />
-        </div>
-
-        <CardContent className="p-4">
-          <div className="flex justify-between items-start">
-            <div>
+        </Link>
+      </div>
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start">
+          <div>
+            <Link to={`/map/${item.id}`}>
               <h3 className="font-medium text-base">{item && item.title}</h3>
-              {author && (
-                <p className="text-sm text-muted-foreground">
-                  by {user?.id == author.id ? "you!" : author.displayName}
-                </p>
-              )}
-            </div>
+            </Link>
+            {author && (
+              <p className="text-sm text-muted-foreground">
+                by {user?.id == author.id ? "you!" : author.displayName}
+              </p>
+            )}
           </div>
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {item &&
-              item.tags.map((category: string) => (
-                <Badge variant="outline" className="px-2" key={category}>
-                  {category}
-                </Badge>
-              ))}
-          </div>
-        </CardContent>
-        <CardFooter className="pt-0 flex justify-between">
-          <div className="flex items-center gap-2">
-            <Eye className={`h-4 w-4`} />
-            <span className="text-sm text-muted-foreground">
-              {item && item.views}
-            </span>
-          </div>
-          <div className="flex flex-row gap-2">
-            <Tooltip>
-              <TooltipContent>Report this item</TooltipContent>
-              <TooltipTrigger>
-                <Button
-                  variant={"outline"}
-                  size={"sm"}
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
-
-                    const reporter = user?.username ?? "anonymous";
-
-                    const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
-
-                    const result = await sendDiscordWebhook(reportURL, message);
-
-                    if (!result) {
-                      toast.error("Failed to report item");
-                    } else {
-                      toast.info("Successfully reported item");
-                    }
-                  }}
-                >
-                  <Flag className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-            </Tooltip>
+        </div>
+        <div className="flex gap-2 mt-2 flex-wrap">
+          {item &&
+            item.tags.map((category: string) => (
+              <Badge variant="outline" className="px-2" key={category}>
+                {category}
+              </Badge>
+            ))}
+        </div>
+      </CardContent>
+      <CardFooter className="pt-0 flex justify-between">
+        <div className="flex items-center gap-2">
+          <Eye className={`h-4 w-4`} />
+          <span className="text-sm text-muted-foreground">
+            {item && item.views}
+          </span>
+        </div>
+        <div className="flex flex-row gap-2">
+          <Tooltip>
+            <TooltipContent>Report this item</TooltipContent>
+            <TooltipTrigger>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
+                  const reporter = user?.username ?? "anonymous";
+                  const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
+                  const result = await sendDiscordWebhook(reportURL, message);
+                  if (!result) {
+                    toast.error("Failed to report item");
+                  } else {
+                    toast.info("Successfully reported item");
+                  }
+                }}
+              >
+                <Flag className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+          </Tooltip>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (item.viewLink) {
+                window.open(item.viewLink);
+              }
+            }}
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            <span>View</span>
+          </Button>
+          {dashboard && (
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               className="gap-1"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                if (item.viewLink) {
-                  window.open(item.viewLink);
+                if (user?.id === item.authorId) {
+                  deleteMap(item.id);
                 }
               }}
             >
-              <ArrowUpRight className="h-4 w-4" />
-              <span>View</span>
+              <span>Delete</span>
             </Button>
-            {dashboard && (
-              <Button
-                variant="destructive"
-                size="sm"
-                className="gap-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (user?.id === item.authorId) {
-                    deleteMap(item.id);
-                  }
-                }}
-              >
-                <span>Delete</span>
-              </Button>
-            )}
-          </div>
-        </CardFooter>
-      </Card>
-    </Link>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
