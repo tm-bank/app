@@ -96,8 +96,23 @@ export async function deleteMap(id: string = "") {
   if (!id) return false;
 
   try {
-    // Implementation would go here
-    throw Error("Unimplemented!");
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mapId: id,
+      }),
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Failed to upload map");
+    }
+
+    return await res.json();
   } catch (e) {
     console.error(`Failed to delete map:`, e);
     toast.error(`Failed to delete map: ${e}`);
