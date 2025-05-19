@@ -108,7 +108,7 @@ export function SceneryCard({
                 return;
               }
 
-              if (user.votes.includes(item.id)) {
+              if (user.votes && user.votes.includes(item.id)) {
                 toast.info("You have already voted for this map.");
                 return;
               }
@@ -127,7 +127,7 @@ export function SceneryCard({
             <ArrowBigUp
               className={`h-4 w-4`}
               fill={"var(color-foreground)"}
-              fillOpacity={user?.votes.includes(item.id) ? 1 : 0}
+              fillOpacity={user?.votes && user?.votes.includes(item.id) ? 1 : 0}
             />
           </Button>
           <span className="text-sm text-muted-foreground">
