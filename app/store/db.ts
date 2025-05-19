@@ -69,7 +69,7 @@ export async function getMap(id: string = "") {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/map/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/${id}`, {
       credentials: "include",
       signal: controller.signal,
     });

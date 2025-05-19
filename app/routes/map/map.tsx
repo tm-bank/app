@@ -71,7 +71,9 @@ export function MapPage() {
             <Card className="w-full h-full">
               <CardHeader>
                 <CardTitle>{map.title}</CardTitle>
-                <CardDescription>{map.authorId}</CardDescription>
+                <CardDescription>
+                  {author && author.displayName}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2 pb-2 flex-wrap">
