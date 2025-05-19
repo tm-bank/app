@@ -1,5 +1,3 @@
-"use client";
-
 import { useParams } from "react-router-dom";
 import Wrapper from "~/wrapper";
 import { SidebarInset } from "~/components/ui/sidebar";

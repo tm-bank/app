@@ -1,4 +1,3 @@
-"use client";
 import { TrackmaniaSidebar } from "./components/sidebar/trackmania-sidebar";
 import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import {

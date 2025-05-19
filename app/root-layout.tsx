@@ -1,4 +1,3 @@
-"use client";
 import * as React from "react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { SidebarProvider } from "~/components/ui/sidebar";
