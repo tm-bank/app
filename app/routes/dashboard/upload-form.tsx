@@ -158,7 +158,7 @@ export function UploadForm() {
         return;
       }
 
-      let result = await uploadMap();
+      let result = await uploadMap(values);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await searchMaps("", dispatch, () => {});
 

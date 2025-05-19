@@ -105,17 +105,32 @@ export async function deleteMap(id: string = "") {
   }
 }
 
-export async function uploadMap(id: string = "") {
-  if (!id) return false;
+export async function uploadMap(data: {
+  title: string;
+  view_link?: string;
+  tags: string[];
+  images: string[];
+}) {
+  const res = await fetch("/api/maps", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      title: data.title,
+      viewLink: data.view_link,
+      tags: data.tags,
+      images: data.images,
+    }),
+    credentials: "include",
+  });
 
-  try {
-    // Implementation would go here
-    throw Error("Unimplemented!");
-  } catch (e) {
-    console.error(`Failed to upload map:`, e);
-    toast.error(`Failed to upload map: ${e}`);
-    return false;
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to upload map");
   }
+
+  return await res.json();
 }
 
 export async function findAuthorFromid(
