@@ -148,13 +148,11 @@ export async function uploadMap(data: {
   return await res.json();
 }
 
-export async function findAuthorFromId(
-  id: string = ""
-): Promise<User | undefined> {
-  if (!id) return undefined;
+export async function findAuthorFromMap(map: Map): Promise<User | undefined> {
+  if (!map) return undefined;
 
   try {
-    return await getUser(id);
+    return await getUser(map.authorId);
   } catch (e) {
     console.error(`Failed to find author:`, e);
     toast.error(`Failed to find author: ${e}`);
