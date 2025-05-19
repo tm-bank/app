@@ -83,7 +83,7 @@ export async function getUser(id: string = ""): Promise<User | undefined> {
     params.append("queryId", id);
 
     const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/maps/search?${params.toString()}`,
+      `${import.meta.env.VITE_API_URL}/user?${params.toString()}`,
       { credentials: "include" }
     );
 
