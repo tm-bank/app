@@ -33,22 +33,19 @@ export function MapPage() {
       }
     };
 
-    fetchMap();
-  }, []);
-
-  useEffect(() => {
     const fetchAuthor = async () => {
       const author = await getUser(map?.authorId);
 
       if (!author) {
         toast.error("Failed to get user!");
       } else {
-        setAuthor(author);
+        fetchMap();
       }
     };
 
+    setAuthor(author);
     fetchAuthor();
-  });
+  }, []);
 
   return (
     <Wrapper>
