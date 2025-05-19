@@ -39,11 +39,12 @@ export function MapPage() {
       if (!author) {
         toast.error("Failed to get user!");
       } else {
+        setAuthor(author);
         fetchMap();
       }
     };
 
-    setAuthor(author);
+    fetchMap();
     fetchAuthor();
   }, []);
 
