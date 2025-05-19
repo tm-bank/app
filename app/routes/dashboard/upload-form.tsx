@@ -231,7 +231,7 @@ export function UploadForm() {
                           suggest more tags by opening an issue on the{" "}
                           <a
                             className="underline"
-                            href="https://github.com/languint/tm-bank"
+                            href="https://github.com/tm-bank/app"
                           >
                             github
                           </a>
