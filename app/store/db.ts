@@ -73,7 +73,7 @@ export async function findAuthorFromid(
   }
 }
 
-export async function getUser(id: string = "") {
+export async function getUser(id: string = ""): Promise<User | undefined> {
   try {
     const params = new URLSearchParams();
 

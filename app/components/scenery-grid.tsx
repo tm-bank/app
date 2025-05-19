@@ -11,6 +11,7 @@ import { useAuth } from "~/providers/auth-provider";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import { sendDiscordWebhook } from "~/store/webhook";
+import { getUser } from "~/store/db";
 
 export function SceneryGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -38,9 +39,13 @@ export function SceneryGrid() {
   );
 }
 
-function SceneryCard({ item }: { item: Map }) {
+async function SceneryCard({ item }: { item: Map }) {
   const { user } = useAuth();
-  const author =
+  const author = await getUser(item.authorId);
+
+  if (!author) {
+    return;
+  }
 
   return (
     <Link to={`/map/${item.id}`}>
@@ -57,17 +62,12 @@ function SceneryCard({ item }: { item: Map }) {
             <div>
               <h3 className="font-medium text-base">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
-                by{" "}
-                {user?.displayName == item.a
-                  ? "you!"
-                  : item.authorDisplay !== null
-                  ? item.authorDisplay
-                  : "unknown"}
+                by {user?.id == author.id ? "you!" : author.displayName}
               </p>
             </div>
           </div>
           <div className="flex gap-2 mt-2 flex-wrap">
-            {item.map.tags.map((category: string) => (
+            {item.tags.map((category: string) => (
               <Badge variant="outline" className="px-2" key={category}>
                 {category}
               </Badge>
@@ -78,7 +78,7 @@ function SceneryCard({ item }: { item: Map }) {
           <div className="flex items-center gap-2">
             <Eye className={`h-4 w-4`} />
             <span className="text-sm text-muted-foreground">
-              {item.map.views}
+              {item.views}
             </span>
           </div>
           <div className="flex flex-row gap-2">
@@ -93,7 +93,7 @@ function SceneryCard({ item }: { item: Map }) {
 
                     const reporter = user?.username ?? "anonymous";
 
-                    const message = `Report from ${reporter} of map: ${item.map.title} (${item.id})`;
+                    const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
 
                     const result = await sendDiscordWebhook(reportURL, message);
 
@@ -114,8 +114,8 @@ function SceneryCard({ item }: { item: Map }) {
               className="gap-1"
               onClick={() => {
                 //!TODO: Call the views endpoint
-                if (item.map.viewLink) {
-                  window.open(item.map.viewLink);
+                if (item.viewLink) {
+                  window.open(item.viewLink);
                 }
               }}
             >
