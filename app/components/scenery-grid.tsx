@@ -47,6 +47,8 @@ export function SceneryCard({
   item: Map;
   dashboard?: boolean;
 }) {
+  if (!item) return <></>;
+  
   const { user } = useAuth();
   const [author, setAuthor] = useState<User>();
 
