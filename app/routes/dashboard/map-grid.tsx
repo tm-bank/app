@@ -26,7 +26,7 @@ export function MapGrid() {
         <h2 className="text-2xl font-bold mb-2">Your maps</h2>
         <p className="text-muted-foreground">Browse your Trackmania tracks</p>
       </div>
-      {maps && maps.maps.length === 0 && (
+      {maps && Array.isArray(maps.maps) && maps.maps.length === 0 && (
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">No results found</p>
         </div>
@@ -35,6 +35,7 @@ export function MapGrid() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {maps &&
           user &&
+          Array.isArray(maps.maps) &&
           filterMaps(maps.maps, user).map((item) => (
             <SceneryCard key={item.id} item={item} dashboard />
           ))}
