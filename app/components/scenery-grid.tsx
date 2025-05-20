@@ -4,6 +4,7 @@ import {
   ArrowBigUp,
   ArrowUpRight,
   Flag,
+  Map,
   MoreVertical,
   Pencil,
   Trash,
@@ -243,8 +244,8 @@ export function SceneryCard({
               }
             }}
           >
-            <ArrowUpRight className="h-4 w-4" />
-            View
+            <Map className="h-4 w-4" />
+            Map
           </Button>
         </div>
 
