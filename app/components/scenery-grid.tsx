@@ -95,7 +95,7 @@ export function SceneryCard({
         </div>
       </CardContent>
       <CardFooter className="pt-0 flex justify-between">
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row gap-4 items-center">
           {!dashboard && author && user?.id !== author.id && (
             <>
               <Tooltip>
