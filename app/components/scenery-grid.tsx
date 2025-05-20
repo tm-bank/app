@@ -94,103 +94,113 @@ export function SceneryCard({
         </div>
       </CardContent>
       <CardFooter className="pt-0 flex justify-between">
-        <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipContent>Upvote this item</TooltipContent>
-            <TooltipTrigger>
-              <Button
-                variant={"outline"}
-                size={"sm"}
-                disabled={isVoting || !user}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
+        {
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipContent>Upvote this item</TooltipContent>
+              <TooltipTrigger>
+                <Button
+                  variant={"outline"}
+                  size={"sm"}
+                  disabled={isVoting || !user}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
 
-                  if (!user) {
-                    toast.error("You must be signed in to vote.");
-                    return;
-                  }
+                    if (!user) {
+                      toast.error("You must be signed in to vote.");
+                      return;
+                    }
 
-                  if (user.id === item.authorId) {
-                    toast.error("You cannot vote for your own map.");
-                    return;
-                  }
+                    if (user.id === item.authorId) {
+                      toast.error("You cannot vote for your own map.");
+                      return;
+                    }
 
-                  if (user.votes && user.votes.includes(item.id)) {
-                    toast.info("You have already voted for this map.");
-                    return;
-                  }
+                    if (user.votes && user.votes.includes(item.id)) {
+                      toast.info("You have already voted for this map.");
+                      return;
+                    }
 
-                  setIsVoting(true);
+                    setIsVoting(true);
 
-                  const success = await castVote(user, item, true);
+                    const success = await castVote(user, item, true);
 
-                  setIsVoting(false);
+                    setIsVoting(false);
 
-                  if (success) {
-                    toast.success("Vote cast!");
-                  }
-                }}
-              >
-                <ArrowBigUp
-                  className={`h-4 w-4`}
-                  fill={"var(color-foreground)"}
-                  fillOpacity={
-                    user?.votes && user?.votes.includes(item.id) ? 1 : 0
-                  }
-                />
-              </Button>
-            </TooltipTrigger>
-          </Tooltip>
-          <span className="text-sm text-muted-foreground">
-            {item && item.votes}
-          </span>
-        </div>
+                    if (success) {
+                      toast.success("Vote cast!");
+                    }
+                  }}
+                >
+                  <ArrowBigUp
+                    className={`h-4 w-4`}
+                    fill={"var(color-foreground)"}
+                    fillOpacity={
+                      user?.votes && user?.votes.includes(item.id) ? 1 : 0
+                    }
+                  />
+                </Button>
+              </TooltipTrigger>
+            </Tooltip>
+            <span className="text-sm text-muted-foreground">
+              {item && item.votes}
+            </span>
+          </div>
+        }
+
         <div className="flex flex-row gap-2">
-          <Tooltip>
-            <TooltipContent>Report this item</TooltipContent>
-            <TooltipTrigger>
-              <Button
-                variant={"outline"}
-                size={"sm"}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
-                  const reporter = user?.username ?? "anonymous";
-                  const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
-                  const result = await sendDiscordWebhook(reportURL, message);
-                  if (!result) {
-                    toast.error("Failed to report item");
-                  } else {
-                    toast.info("Successfully reported item");
-                  }
-                }}
-              >
-                <Flag className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-          </Tooltip>
-          <Tooltip>
-            <TooltipContent>Upvote this item</TooltipContent>
-            <TooltipTrigger>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (item.viewLink) {
-                    window.open(item.viewLink);
-                  }
-                }}
-              >
-                <ArrowUpRight className="h-4 w-4" />
-                <span>View</span>
-              </Button>
-            </TooltipTrigger>
-          </Tooltip>
+          {!dashboard && author && user?.id !== author.id && (
+            <>
+              <Tooltip>
+                <TooltipContent>Report this item</TooltipContent>
+                <TooltipTrigger>
+                  <Button
+                    variant={"outline"}
+                    size={"sm"}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
+                      const reporter = user?.username ?? "anonymous";
+                      const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
+                      const result = await sendDiscordWebhook(
+                        reportURL,
+                        message
+                      );
+                      if (!result) {
+                        toast.error("Failed to report item");
+                      } else {
+                        toast.info("Successfully reported item");
+                      }
+                    }}
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+              </Tooltip>
+              <Tooltip>
+                <TooltipContent>Upvote this item</TooltipContent>
+                <TooltipTrigger>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      if (item.viewLink) {
+                        window.open(item.viewLink);
+                      }
+                    }}
+                  >
+                    <ArrowUpRight className="h-4 w-4" />
+                    <span>View</span>
+                  </Button>
+                </TooltipTrigger>
+              </Tooltip>
+            </>
+          )}
           {dashboard && (
             <Button
               variant="destructive"
