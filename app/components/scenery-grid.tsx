@@ -193,7 +193,7 @@ export function SceneryCard({
             <ArrowUpRight className="h-4 w-4" />
             <span>View</span>
           </Button>
-          {dashboard && (
+          {(dashboard || user?.admin) && (
             <Button
               variant="destructive"
               size="sm"
