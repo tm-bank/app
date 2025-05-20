@@ -220,7 +220,7 @@ export function SceneryCard({
               <span>Delete</span>
             </Button>
           )}
-          <Button onClick={() => setShowEdit(true)}>Edit</Button>
+          {dashboard && <Button onClick={() => setShowEdit(true)}>Edit</Button>}
           {showEdit && (
             <Dialog open={showEdit} onOpenChange={setShowEdit}>
               <DialogContent>
