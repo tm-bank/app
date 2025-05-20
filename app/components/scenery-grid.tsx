@@ -98,58 +98,56 @@ export function SceneryCard({
         <div className="flex flex-row gap-4">
           {!dashboard && author && user?.id !== author.id && (
             <>
-              <div className="flex items-center gap-4">
-                <Tooltip>
-                  <TooltipContent>Upvote this item</TooltipContent>
-                  <TooltipTrigger>
-                    <Button
-                      variant={"outline"}
-                      size={"sm"}
-                      disabled={isVoting || !user}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
+              <Tooltip>
+                <TooltipContent>Upvote this item</TooltipContent>
+                <TooltipTrigger>
+                  <Button
+                    variant={"outline"}
+                    size={"sm"}
+                    disabled={isVoting || !user}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
 
-                        if (!user) {
-                          toast.error("You must be signed in to vote.");
-                          return;
-                        }
+                      if (!user) {
+                        toast.error("You must be signed in to vote.");
+                        return;
+                      }
 
-                        if (user.id === item.authorId) {
-                          toast.error("You cannot vote for your own map.");
-                          return;
-                        }
+                      if (user.id === item.authorId) {
+                        toast.error("You cannot vote for your own map.");
+                        return;
+                      }
 
-                        if (user.votes && user.votes.includes(item.id)) {
-                          toast.info("You have already voted for this map.");
-                          return;
-                        }
+                      if (user.votes && user.votes.includes(item.id)) {
+                        toast.info("You have already voted for this map.");
+                        return;
+                      }
 
-                        setIsVoting(true);
+                      setIsVoting(true);
 
-                        const success = await castVote(user, item, true);
+                      const success = await castVote(user, item, true);
 
-                        setIsVoting(false);
+                      setIsVoting(false);
 
-                        if (success) {
-                          toast.success("Vote cast!");
-                        }
-                      }}
-                    >
-                      <ArrowBigUp
-                        className={`h-4 w-4`}
-                        fill={"var(color-foreground)"}
-                        fillOpacity={
-                          user?.votes && user?.votes.includes(item.id) ? 1 : 0
-                        }
-                      />
-                    </Button>
-                  </TooltipTrigger>
-                </Tooltip>
-                <span className="text-sm text-muted-foreground">
-                  {item && item.votes}
-                </span>
-              </div>
+                      if (success) {
+                        toast.success("Vote cast!");
+                      }
+                    }}
+                  >
+                    <ArrowBigUp
+                      className={`h-4 w-4`}
+                      fill={"var(color-foreground)"}
+                      fillOpacity={
+                        user?.votes && user?.votes.includes(item.id) ? 1 : 0
+                      }
+                    />
+                  </Button>
+                </TooltipTrigger>
+              </Tooltip>
+              <span className="text-sm text-muted-foreground">
+                {item && item.votes}
+              </span>
               <Tooltip>
                 <TooltipContent>Report this item</TooltipContent>
                 <TooltipTrigger>
@@ -177,10 +175,11 @@ export function SceneryCard({
                   </Button>
                 </TooltipTrigger>
               </Tooltip>
+              <Separator orientation="vertical" />
             </>
           )}
         </div>
-        <Separator orientation="vertical" />
+
         <div className="flex flex-row gap-2">
           <Button
             variant="outline"
