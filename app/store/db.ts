@@ -225,3 +225,32 @@ export async function castVote(
     return false;
   }
 }
+
+export async function editMap(
+  mapId: string,
+  data: {
+    title?: string;
+    view_link?: string;
+    tags?: string[];
+    images?: string[];
+  }
+) {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/${mapId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      title: data.title,
+      viewLink: data.view_link,
+      tags: data.tags,
+      images: data.images,
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to update map");
+  }
+
+  return await res.json();
+}
