@@ -245,7 +245,7 @@ export function SceneryCard({
             }}
           >
             <IconMap className="h-4 w-4" />
-            Map
+            View Map
           </Button>
         </div>
 
