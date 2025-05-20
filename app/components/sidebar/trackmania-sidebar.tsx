@@ -105,8 +105,6 @@ function Header({
 export function Footer() {
   const { user, signInWithDiscord, signOut } = useAuth();
 
-  console.log(user);
-
   return (
     <SidebarFooter className="bg-accent pb-4 pt-4">
       <SidebarMenu>
