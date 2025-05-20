@@ -94,7 +94,7 @@ export function SceneryCard({
         </div>
       </CardContent>
       <CardFooter className="pt-0 flex justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Button
             variant={"outline"}
             size={"sm"}
@@ -123,7 +123,7 @@ export function SceneryCard({
               const success = await castVote(user, item, true);
 
               setIsVoting(false);
-              
+
               if (success) {
                 toast.success("Vote cast!");
               }
@@ -164,26 +164,30 @@ export function SceneryCard({
               </Button>
             </TooltipTrigger>
           </Tooltip>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (item.viewLink) {
-                window.open(item.viewLink);
-              }
-            }}
-          >
-            <ArrowUpRight className="h-4 w-4" />
-            <span>View</span>
-          </Button>
+          <Tooltip>
+            <TooltipContent>Upvote this item</TooltipContent>
+            <TooltipTrigger>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (item.viewLink) {
+                    window.open(item.viewLink);
+                  }
+                }}
+              >
+                <ArrowUpRight className="h-4 w-4" />
+                <span>View</span>
+              </Button>
+            </TooltipTrigger>
+          </Tooltip>
           {dashboard && (
             <Button
               variant="destructive"
               size="sm"
-              className="gap-1"
               onClick={async (e) => {
                 e.stopPropagation();
                 e.preventDefault();
