@@ -34,6 +34,13 @@ import { useAuth } from "~/providers/auth-provider";
 
 import { searchMaps } from "~/store/db";
 import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 function Header({
   setSearchQuery,
@@ -72,9 +79,24 @@ function Header({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <Button variant={"secondary"}>
-          <TextSearch className="w-9 h-9" />
-        </Button>
+        <Dialog>
+          <DialogTrigger>
+            <Button variant={"secondary"} asChild>
+              <TextSearch className="w-9 h-9" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogTitle>Search tips</DialogTitle>
+            <DialogDescription>
+              You can more finely search for items by using commas and
+              selectors. <br />
+              Selectors are text followed by a colon (:), and then your parameters. <br />
+              There are 2 selectors; author, and title. <br />
+              Let's say I want all the maps from John that have the title "Map" in them, and that are red. <br />
+              We could search for something like "author:John, title:Map, Red" 
+            </DialogDescription>
+          </DialogContent>
+        </Dialog>
       </div>
     </SidebarHeader>
   );
