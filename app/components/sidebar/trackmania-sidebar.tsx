@@ -5,6 +5,7 @@ import {
   Tag,
   UserX,
   LucideLayoutDashboard,
+  TextSearch,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
@@ -32,6 +33,7 @@ import { Separator } from "../ui/separator";
 import { useAuth } from "~/providers/auth-provider";
 
 import { searchMaps } from "~/store/db";
+import { Button } from "../ui/button";
 
 function Header({
   setSearchQuery,
@@ -57,15 +59,22 @@ function Header({
         </div>
       </div>
 
-      <div className={`mt-4 relative ${state === "collapsed" ? "hidden" : ""}`}>
+      <div
+        className={`mt-4 relative ${
+          state === "collapsed" ? "hidden" : ""
+        } flex gap-2`}
+      >
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search"
-          className="w-full pl-9 h-9"
+          className="grow pl-9 h-9"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <Button variant={"secondary"}>
+          <TextSearch className="w-9 h-9" />
+        </Button>
       </div>
     </SidebarHeader>
   );
@@ -108,7 +117,7 @@ export function Footer() {
                   )}
                 </Avatar>
                 <span>{user?.displayName || user?.username}</span>
-                {user.admin && (<Badge variant={"destructive"}>Admin</Badge>)}
+                {user.admin && <Badge variant={"destructive"}>Admin</Badge>}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </>
@@ -248,9 +257,12 @@ export function TrackmaniaSidebar() {
                       <Tag className="h-4 w-4" />
                       <span>{tag}</span>
                       <Badge variant="outline" className="ml-auto">
-                        {localMaps.filter(
-                          (m) => m && Array.isArray(m.tags) && m.tags.includes(tag)
-                        ).length}
+                        {
+                          localMaps.filter(
+                            (m) =>
+                              m && Array.isArray(m.tags) && m.tags.includes(tag)
+                          ).length
+                        }
                       </Badge>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
