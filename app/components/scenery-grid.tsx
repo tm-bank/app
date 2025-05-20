@@ -179,7 +179,7 @@ export function SceneryCard({
       </CardContent>
 
       <CardFooter className="pt-0 flex justify-between">
-        <div className="flex flex-row gap-4 items-center">
+        <div className="flex flex-row gap-2 items-center">
           {/* Upvote button */}
           {!dashboard && author && user?.id !== author.id && (
             <>
