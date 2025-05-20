@@ -178,6 +178,8 @@ export function SceneryCard({
               </Tooltip>
             </>
           )}
+        </div>
+        <div className="flex flex-row gap-2">
           <Button
             variant="outline"
             size="sm"
