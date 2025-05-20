@@ -126,7 +126,7 @@ export function SceneryCard({
                     Delete
                   </DropdownMenuItem>
                 )}
-                {!dashboard && (
+                {!dashboard && !user?.admin && (
                   <DropdownMenuItem
                     className="text-destructive"
                     onClick={async (e) => {
