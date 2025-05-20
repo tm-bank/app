@@ -14,6 +14,8 @@ import { sendDiscordWebhook } from "~/store/webhook";
 import { castVote, deleteMap, getUser } from "~/store/db";
 import { useEffect, useState } from "react";
 import { Separator } from "./ui/separator";
+import { Dialog, DialogContent } from "./ui/dialog";
+import { EditForm } from "~/routes/dashboard/edit-form";
 
 export function SceneryGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -53,6 +55,7 @@ export function SceneryCard({
   const { user } = useAuth();
   const [author, setAuthor] = useState<User>();
   const [isVoting, setIsVoting] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   useEffect(() => {
     async function fetchAuthor() {
@@ -181,21 +184,23 @@ export function SceneryCard({
         </div>
 
         <div className="flex flex-row gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (item.viewLink) {
-                window.open(item.viewLink);
-              }
-            }}
-          >
-            <ArrowUpRight className="h-4 w-4" />
-            <span>View</span>
-          </Button>
+          {!dashboard && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (item.viewLink) {
+                  window.open(item.viewLink);
+                }
+              }}
+            >
+              <ArrowUpRight className="h-4 w-4" />
+              <span>View</span>
+            </Button>
+          )}
           {(dashboard || user?.admin) && (
             <Button
               variant="destructive"
@@ -214,6 +219,14 @@ export function SceneryCard({
             >
               <span>Delete</span>
             </Button>
+          )}
+          <Button onClick={() => setShowEdit(true)}>Edit</Button>
+          {showEdit && (
+            <Dialog open={showEdit} onOpenChange={setShowEdit}>
+              <DialogContent>
+                <EditForm map={item} onSuccess={() => setShowEdit(false)} />
+              </DialogContent>
+            </Dialog>
           )}
         </div>
       </CardFooter>
