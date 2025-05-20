@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { sendDiscordWebhook } from "~/store/webhook";
 import { castVote, deleteMap, getUser } from "~/store/db";
 import { useEffect, useState } from "react";
+import { Separator } from "./ui/separator";
 
 export function SceneryGrid() {
   const maps = useAppSelector((state) => state.maps);
@@ -94,10 +95,10 @@ export function SceneryCard({
         </div>
       </CardContent>
       <CardFooter className="pt-0 flex justify-between">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-4">
           {!dashboard && author && user?.id !== author.id && (
             <>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <Tooltip>
                   <TooltipContent>Upvote this item</TooltipContent>
                   <TooltipTrigger>
@@ -179,6 +180,7 @@ export function SceneryCard({
             </>
           )}
         </div>
+        <Separator orientation="vertical" />
         <div className="flex flex-row gap-2">
           <Button
             variant="outline"
