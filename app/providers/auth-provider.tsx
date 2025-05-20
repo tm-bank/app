@@ -44,6 +44,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           avatar: data.avatar,
           displayName: data.global_name || data.username,
           maps: [],
+          admin: data.admin,
+          votes: data.votes,
         });
       }
     } catch (error) {
