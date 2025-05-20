@@ -82,7 +82,7 @@ function Header({
         <Dialog>
           <DialogTrigger>
             <Button variant={"secondary"} asChild>
-              <TextSearch className="w-9 h-9" />
+              <TextSearch className="w-full h-full" />
             </Button>
           </DialogTrigger>
           <DialogContent>
