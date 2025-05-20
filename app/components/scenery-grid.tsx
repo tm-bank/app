@@ -158,7 +158,7 @@ export function SceneryCard({
         </div>
 
         {/* Tags */}
-        <div className="flex gap-2 mb-3 flex-wrap">
+        <div className="flex gap-2 mb-3 flex-wrap grow">
           {item &&
             item.tags.map((category: string) => (
               <Badge variant="outline" className="px-2" key={category}>
@@ -178,7 +178,7 @@ export function SceneryCard({
         </div>
       </CardContent>
 
-      <CardFooter className="pt-0 flex justify-between">
+      <CardFooter className="pt-0 flex justify-between shrink">
         <div className="flex flex-row gap-2 items-center">
           {/* Upvote button */}
           {!dashboard && author && user?.id !== author.id && (
