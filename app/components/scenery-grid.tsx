@@ -4,7 +4,7 @@ import {
   ArrowBigUp,
   ArrowUpRight,
   Flag,
-  Map,
+  Map as IconMap,
   MoreVertical,
   Pencil,
   Trash,
@@ -244,7 +244,7 @@ export function SceneryCard({
               }
             }}
           >
-            <Map className="h-4 w-4" />
+            <IconMap className="h-4 w-4" />
             Map
           </Button>
         </div>
