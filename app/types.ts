@@ -16,4 +16,5 @@ export interface User {
   avatar: string;
   maps: Map[];
   votes: string[];
+  admin: boolean;
 }

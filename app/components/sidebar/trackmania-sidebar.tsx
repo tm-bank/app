@@ -106,6 +106,7 @@ export function Footer() {
                   )}
                 </Avatar>
                 <span>{user?.displayName || user?.username}</span>
+                {user.admin && (<Badge variant={"destructive"}>Admin</Badge>)}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </>
