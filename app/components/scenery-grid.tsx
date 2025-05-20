@@ -114,7 +114,7 @@ export function SceneryCard({
                     onClick={async (e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      if (user?.id === item.authorId) {
+                      if (user?.id === item.authorId || user?.admin) {
                         const result = await deleteMap(item.id);
                         if (result) {
                           toast.error("Successfully deleted map.");
