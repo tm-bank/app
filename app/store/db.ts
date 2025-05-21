@@ -55,6 +55,8 @@ export async function search(
 
     if (blocks) {
       dispatch(blocksSlice.actions.setBlocks(data));
+    } else {
+      dispatch(mapsSlice.actions.setMaps(data));
     }
 
     return data;
