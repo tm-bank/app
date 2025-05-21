@@ -93,7 +93,7 @@ export function BlockCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {(dashboard || user?.admin) && (
+                {(user?.admin || user?.id === item.authorId) && (
                   <DropdownMenuItem
                     className="text-destructive"
                     onClick={async (e) => {
