@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "~/providers/auth-provider";
-import { castVoteBlock, deleteMap, getUser } from "~/store/db";
+import { castVoteBlock, deleteBlock, deleteMap, getUser } from "~/store/db";
 import { useAppSelector } from "~/store/store";
 import type { Block, User } from "~/types";
 import { Card, CardContent, CardFooter } from "./ui/card";
@@ -16,11 +16,9 @@ import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import {
   MoreVertical,
-  Pencil,
   Trash,
   Flag,
   ArrowBigUp,
-  Box,
   Download,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -101,12 +99,7 @@ export function BlockCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {(dashboard || user?.admin) && (
-                  <DropdownMenuItem onClick={() => setShowEdit(true)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                )}
+             
                 {(dashboard || user?.admin) && (
                   <DropdownMenuItem
                     className="text-destructive"
@@ -114,7 +107,7 @@ export function BlockCard({
                       e.stopPropagation();
                       e.preventDefault();
                       if (user?.id === item.authorId || user?.admin) {
-                        const result = await deleteMap(item.id);
+                        const result = await deleteBlock(item.id);
                         if (result) {
                           toast.error("Successfully deleted block.");
                         }
