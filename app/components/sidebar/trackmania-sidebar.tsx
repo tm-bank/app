@@ -51,12 +51,10 @@ export function TrackmaniaSidebar() {
   const routerLocation = useLocation();
   const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [localItems, setLocalItems] = React.useState<any[]>([]);
+  const [localMaps, setLocalMaps] = React.useState<any[]>([]);
+  const [localBlocks, setLocalBlocks] = React.useState<any[]>([]);
   const { state } = useSidebar();
   const [isLoading, setIsLoading] = React.useState(true);
-
-  // Determine what to load based on route
-  const isBlocksRoute = routerLocation.pathname.startsWith("/blocks") || routerLocation.pathname.startsWith("/dashboard");
 
   React.useEffect(() => {
     let isMounted = true;
@@ -64,7 +62,10 @@ export function TrackmaniaSidebar() {
     const fetchInitial = async () => {
       setIsLoading(true);
       try {
-        await search(searchQuery, dispatch, setLocalItems, isBlocksRoute);
+        const [maps, blocks] = await Promise.all([
+          search(searchQuery, dispatch, setLocalMaps, false),
+          search(searchQuery, dispatch, setLocalBlocks, true),
+        ]);
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -75,13 +76,16 @@ export function TrackmaniaSidebar() {
     return () => {
       isMounted = false;
     };
-  }, [dispatch, isBlocksRoute]);
+  }, [dispatch]);
 
   React.useEffect(() => {
     let isMounted = true;
     const timer = setTimeout(async () => {
       try {
-        await search(searchQuery, dispatch, setLocalItems, isBlocksRoute);
+        await Promise.all([
+          search(searchQuery, dispatch, setLocalMaps, false),
+          search(searchQuery, dispatch, setLocalBlocks, true),
+        ]);
       } catch (error) {
         console.error("Error searching:", error);
       }
@@ -91,26 +95,15 @@ export function TrackmaniaSidebar() {
       clearTimeout(timer);
       isMounted = false;
     };
-  }, [searchQuery, dispatch, isBlocksRoute]);
-
-  const tagCounts = React.useMemo(() => {
-    if (isLoading) return {};
-    return localItems.reduce<Record<string, number>>((acc, item) => {
-      if (item.tags && Array.isArray(item.tags)) {
-        item.tags.forEach((tag: string) => {
-          acc[tag] = (acc[tag] || 0) + 1;
-        });
-      }
-      return acc;
-    }, {});
-  }, [localItems, isLoading]);
+  }, [searchQuery, dispatch]);
 
   const sortedTags = React.useMemo(() => {
-    return Object.entries(tagCounts)
-      .sort(([, a], [, b]) => b - a)
-      .map(([tag]) => tag)
-      .slice(0, 6);
-  }, [tagCounts]);
+    const tags = [
+      ...(localMaps?.flatMap((item) => item.tags || []) ?? []),
+      ...(localBlocks?.flatMap((item) => item.tags || []) ?? []),
+    ];
+    return Array.from(new Set(tags)).sort();
+  }, [localMaps, localBlocks]);
 
   return (
     <Sidebar collapsible="icon">
@@ -149,7 +142,7 @@ export function TrackmaniaSidebar() {
           isLoading,
           sortedTags,
           setSearchQuery,
-          localMaps: localItems,
+          localMaps: [...localMaps, ...localBlocks],
         })}
       </SidebarContent>
       <SidebarRail />
