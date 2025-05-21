@@ -3,6 +3,7 @@ import type { Block, Map, User } from "~/types";
 import type { AppDispatch } from "./store";
 import { toast } from "sonner";
 import mapsSlice from "./maps-slice";
+import blocksSlice from "./blocks-slice";
 
 // Unified search for maps or blocks
 export async function search(
@@ -52,9 +53,8 @@ export async function search(
       }
     }
 
-    // Only update mapsSlice for maps, not blocks
     if (!blocks) {
-      dispatch(mapsSlice.actions.setMaps(data));
+      dispatch(blocksSlice.actions.setBlocks(data));
     }
 
     return data;
