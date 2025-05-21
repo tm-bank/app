@@ -124,7 +124,7 @@ export function UploadForm() {
     const albumUrl = prompt("Enter Imgur album URL:");
     if (!albumUrl) return;
 
-    const match = albumUrl.match(/imgur\.com\/a\/([a-zA-Z0-9]+)/);
+    const match = albumUrl.match(/imgur\.com\/a\/([a-zA-Z0-9\-_]+)/);
     if (!match) {
       toast.error("Invalid Imgur album URL.");
       return;
@@ -370,7 +370,7 @@ export function UploadForm() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-full gap-2">
+                      <div className="flex items-center justify-center w-full gap-2 flex-col">
                         <Button
                           type="button"
                           variant="outline"
