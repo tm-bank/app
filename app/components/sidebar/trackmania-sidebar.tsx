@@ -1,7 +1,5 @@
-import React from "react";
-import { Grid3X3, Tag, LucideLayoutDashboard } from "lucide-react";
-import { cn } from "~/lib/utils";
-import { Badge } from "~/components/ui/badge";
+import React, { type ReactNode } from "react";
+import { Grid3X3, LucideLayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,13 +15,33 @@ import {
 import { Link, useLocation } from "react-router";
 
 import { useAppDispatch } from "~/store/store";
-
 import { searchMaps } from "~/store/db";
+
 import { Footer } from "./footer";
 import { Header } from "./header";
+import { SidebarTagsGroup } from "./tags-group";
+
+interface Location {
+  display: string;
+  to: string;
+  icon: ReactNode;
+}
+
+const LOCATIONS = [
+  {
+    display: "Scenery",
+    to: "/",
+    icon: <Grid3X3 />,
+  },
+  {
+    display: "Dashboard",
+    to: "/dashboard",
+    icon: <LucideLayoutDashboard />,
+  },
+] as Location[];
 
 export function TrackmaniaSidebar() {
-  const location = useLocation();
+  const routerLocation = useLocation();
   const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [localMaps, setLocalMaps] = React.useState<any[]>([]);
@@ -100,67 +118,30 @@ export function TrackmaniaSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <Link to="/">
-                  <SidebarMenuButton
-                    tooltip="Browse"
-                    isActive={location.pathname === "/"}
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                    <span>Scenery</span>
-                  </SidebarMenuButton>
-                </Link>
-                <Link to="/dashboard">
-                  <SidebarMenuButton
-                    tooltip="Dashboard"
-                    isActive={location.pathname === "/dashboard"}
-                  >
-                    <LucideLayoutDashboard className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
+              {LOCATIONS.map((location) => (
+                <SidebarMenuItem>
+                  <Link to={location.to}>
+                    <SidebarMenuButton
+                      tooltip="Browse"
+                      isActive={location.to === routerLocation.pathname}
+                    >
+                      {location.icon}
+                      <span>{location.display}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className={cn(state === "collapsed" && "hidden")}>
-          <SidebarGroupLabel>Tags</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {isLoading ? (
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
-                    <span>Loading tags...</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ) : sortedTags.length > 0 ? (
-                sortedTags.map((tag) => (
-                  <SidebarMenuItem key={tag}>
-                    <SidebarMenuButton onClick={() => setSearchQuery(tag)}>
-                      <Tag className="h-4 w-4" />
-                      <span>{tag}</span>
-                      <Badge variant="outline" className="ml-auto">
-                        {
-                          localMaps.filter(
-                            (m) =>
-                              m && Array.isArray(m.tags) && m.tags.includes(tag)
-                          ).length
-                        }
-                      </Badge>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))
-              ) : (
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
-                    <span>No tags found</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {SidebarTagsGroup({
+          state,
+          isLoading,
+          sortedTags,
+          setSearchQuery,
+          localMaps,
+        })}
       </SidebarContent>
       <SidebarRail />
       <Footer />
