@@ -102,7 +102,7 @@ export function TrackmaniaSidebar() {
       ...(localMaps?.flatMap((item) => item.tags || []) ?? []),
       ...(localBlocks?.flatMap((item) => item.tags || []) ?? []),
     ];
-    return Array.from(new Set(tags)).sort((a, b) => b - a).slice(0, 5);
+    return Array.from(new Set(tags)).sort((a, b) => a - b).slice(0, 5);
   }, [localMaps, localBlocks]);
 
   return (
