@@ -20,11 +20,13 @@ import { search } from "~/store/db";
 import { Footer } from "./footer";
 import { Header } from "./header";
 import { SidebarTagsGroup } from "./tags-group";
+import { Badge } from "../ui/badge";
 
 interface Location {
   display: string;
   to: string;
   icon: ReactNode;
+  badge?: ReactNode;
 }
 
 const LOCATIONS = [
@@ -42,6 +44,7 @@ const LOCATIONS = [
     display: "Blocks",
     to: "/blocks",
     icon: <Boxes />,
+    badge: <Badge className="bg-yellow-400">New</Badge>,
   },
 ] as Location[];
 export function TrackmaniaSidebar() {
@@ -127,9 +130,12 @@ export function TrackmaniaSidebar() {
                     <SidebarMenuButton
                       tooltip="Browse"
                       isActive={location.to === routerLocation.pathname}
+                      className="flex flex-row gap-2"
                     >
                       {location.icon}
                       <span>{location.display}</span>
+                      <span className="flex grow" />
+                      {location.badge}
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
