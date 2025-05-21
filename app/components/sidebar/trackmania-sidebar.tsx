@@ -56,7 +56,7 @@ export function TrackmaniaSidebar() {
   const [isLoading, setIsLoading] = React.useState(true);
 
   // Determine what to load based on route
-  const isBlocksRoute = routerLocation.pathname.startsWith("/blocks");
+  const isBlocksRoute = routerLocation.pathname.startsWith("/blocks") || routerLocation.pathname.startsWith("/dashboard");
 
   React.useEffect(() => {
     let isMounted = true;

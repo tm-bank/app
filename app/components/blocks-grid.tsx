@@ -14,13 +14,7 @@ import {
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import {
-  MoreVertical,
-  Trash,
-  Flag,
-  ArrowBigUp,
-  Download,
-} from "lucide-react";
+import { MoreVertical, Trash, Flag, ArrowBigUp, Download } from "lucide-react";
 import { toast } from "sonner";
 import { EditForm } from "~/routes/dashboard/edit-form";
 import { sendDiscordWebhook } from "~/store/webhook";
@@ -99,7 +93,6 @@ export function BlockCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-             
                 {(dashboard || user?.admin) && (
                   <DropdownMenuItem
                     className="text-destructive"
