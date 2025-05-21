@@ -40,8 +40,14 @@ const VALID_TAGS = {
     "Purple",
     "Black",
     "White",
+    "Grey",
+    "Pink",
+    "Brown",
+    "Lime",
+    "Teal",
+    "Magenta"
   ],
-  styles: ["Tech", "Wood", "Grass", "Dirt", "Plastic", "Wet", "Reactor"],
+  styles: ["Tech", "Wood", "Grass", "Dirt", "Plastic", "Wet", "Reactor", "Ice", "Fullspeed"],
   themes: [
     "Dark",
     "Terrain",
