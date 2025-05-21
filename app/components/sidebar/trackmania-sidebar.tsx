@@ -1,23 +1,13 @@
 import React from "react";
-import {
-  Search,
-  Grid3X3,
-  Tag,
-  UserX,
-  LucideLayoutDashboard,
-  TextSearch,
-} from "lucide-react";
+import { Grid3X3, Tag, LucideLayoutDashboard } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { Input } from "~/components/ui/input";
 import { Badge } from "~/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -25,138 +15,12 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import { Link, useLocation } from "react-router";
-import { Logo } from "./logo";
 
 import { useAppDispatch } from "~/store/store";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Separator } from "../ui/separator";
-import { useAuth } from "~/providers/auth-provider";
 
 import { searchMaps } from "~/store/db";
-import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-
-function Header({
-  setSearchQuery,
-  searchQuery,
-  state,
-}: {
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-  searchQuery: string;
-  state: "expanded" | "collapsed";
-}) {
-  return (
-    <SidebarHeader className="p-3">
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <Logo fill="var(--primary-foreground)" />
-        </div>
-        <div
-          className={`font-semibold text-lg leading-none ${
-            state === "collapsed" ? "hidden" : ""
-          }`}
-        >
-          TM Bank
-        </div>
-      </div>
-
-      <div
-        className={`mt-4 relative ${
-          state === "collapsed" ? "hidden" : ""
-        } flex gap-2`}
-      >
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search"
-          className="grow pl-9 h-9"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <Dialog>
-          <DialogTrigger>
-            <Button variant={"secondary"}>
-              <TextSearch className="w-9 h-9" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogTitle>Search tips</DialogTitle>
-            <DialogDescription>
-              You can more finely search for items by using commas and
-              selectors. <br />
-              Selectors are text followed by a colon (:), and then your parameters. <br />
-              There are 2 selectors; author, and title. <br />
-              Let's say I want all the maps from John that have the title "Map" in them, and that are red. <br />
-              We could search for something like "author:John, title:Map, Red" 
-            </DialogDescription>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </SidebarHeader>
-  );
-}
-
-export function Footer() {
-  const { user, signInWithDiscord, signOut } = useAuth();
-
-  return (
-    <SidebarFooter className="bg-accent pb-4 pt-4">
-      <SidebarMenu>
-        {user ? (
-          <>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip={"Sign out"}
-                size={"lg"}
-                onClick={() => signOut()}
-                className="cursor-pointer"
-              >
-                <UserX className="h-4 w-4" />
-                Sign Out
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Separator className="mt-2 mb-2" />
-              <SidebarMenuButton tooltip="Profile" size="lg">
-                <Avatar className="h-8 w-8">
-                  {user.avatar !== "none" ? (
-                    <AvatarImage
-                      src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`}
-                      alt={user.username || "User"}
-                    />
-                  ) : (
-                    <AvatarFallback>
-                      {user.username?.[0]?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <span>{user?.displayName || user?.username}</span>
-                {user.admin && <Badge variant={"destructive"}>Admin</Badge>}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </>
-        ) : (
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Sign in with Discord"
-              size="lg"
-              onClick={() => signInWithDiscord()}
-              className="bg-accent-foreground text-accent justify-center hover:bg-accent-foreground/90 hover:text-accent/90"
-            >
-              <span>Sign in</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        )}
-      </SidebarMenu>
-    </SidebarFooter>
-  );
-}
+import { Footer } from "./footer";
+import { Header } from "./header";
 
 export function TrackmaniaSidebar() {
   const location = useLocation();
