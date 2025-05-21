@@ -125,7 +125,7 @@ export function Footer() {
               <Separator className="mt-2 mb-2" />
               <SidebarMenuButton tooltip="Profile" size="lg">
                 <Avatar className="h-8 w-8">
-                  {user.avatar ? (
+                  {user.avatar !== "none" ? (
                     <AvatarImage
                       src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`}
                       alt={user.username || "User"}
