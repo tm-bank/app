@@ -2,7 +2,13 @@ import { Search, TextSearch } from "lucide-react";
 import { SidebarHeader } from "../ui/sidebar";
 import { Logo } from "./logo";
 import { Input } from "../ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { Button } from "../ui/button";
 
 export function Header({
@@ -43,10 +49,8 @@ export function Header({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         <Dialog>
-          <DialogTrigger>
-            <Button variant={"secondary"}>
-              <TextSearch className="w-9 h-9" />
-            </Button>
+          <DialogTrigger className="bg-secondary p-2 rounded-md">
+            <TextSearch className="w-full h-full" />
           </DialogTrigger>
           <DialogContent>
             <DialogTitle>Search tips</DialogTitle>

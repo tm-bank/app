@@ -1,67 +1,65 @@
-"use client";
-
-import {
-  ArrowBigUp,
-  ArrowUpRight,
-  Flag,
-  Map as IconMap,
-  MoreVertical,
-  Pencil,
-  Trash,
-} from "lucide-react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardFooter } from "~/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { useAppSelector } from "~/store/store";
-import type { Map, User } from "~/types";
-import { useAuth } from "~/providers/auth-provider";
-import { Link } from "react-router";
-import { toast } from "sonner";
-import { sendDiscordWebhook } from "~/store/webhook";
-import { castVote, deleteMap, getUser } from "~/store/db";
 import { useEffect, useState } from "react";
-import { Separator } from "./ui/separator";
-import { Dialog, DialogContent } from "./ui/dialog";
-import { EditForm } from "~/routes/dashboard/edit-form";
+import { useAuth } from "~/providers/auth-provider";
+import { castVoteBlock, deleteMap, getUser } from "~/store/db";
+import { useAppSelector } from "~/store/store";
+import type { Block, User } from "~/types";
+import { Card, CardContent, CardFooter } from "./ui/card";
+import { Link } from "react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Dialog, DialogContent } from "./ui/dialog";
+import { Separator } from "./ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import {
+  MoreVertical,
+  Pencil,
+  Trash,
+  Flag,
+  ArrowBigUp,
+  Box,
+  Download,
+} from "lucide-react";
+import { toast } from "sonner";
+import { EditForm } from "~/routes/dashboard/edit-form";
+import { sendDiscordWebhook } from "~/store/webhook";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
-export function SceneryGrid() {
-  const maps = useAppSelector((state) => state.maps);
+export function BlocksGrid() {
+  const blocks = useAppSelector((state) => state.blocks);
 
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Scenery</h2>
+        <h2 className="text-2xl font-bold mb-2">Blocks</h2>
         <p className="text-muted-foreground">
-          Browse scenery items and palettes for your Trackmania tracks
+          Browse scenery items and download them for your Trackmania tracks.
         </p>
       </div>
-      {maps.maps.length === 0 && (
+      {blocks.blocks.length === 0 && (
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">No results found</p>
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {maps.maps.map((item) => (
-          <SceneryCard key={item.id} item={item} />
+        {blocks.blocks.map((item) => (
+          <BlockCard key={item.id} item={item} />
         ))}
       </div>
     </div>
   );
 }
 
-export function SceneryCard({
+export function BlockCard({
   item,
   dashboard,
 }: {
-  item: Map;
+  item: Block;
   dashboard?: boolean;
 }) {
   if (!item) return <></>;
@@ -84,12 +82,12 @@ export function SceneryCard({
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div>
-            <Link to={`/map/${item.id}`}>
-              <h3 className="font-medium text-base">{item && item.title}</h3>
-            </Link>
+            <h3 className="font-medium text-base">{item && item.title}</h3>
             {author && (
               <p className="text-sm text-muted-foreground">
-                by {user?.id == author.id ? "you!" : author.displayName}
+                by{" "}
+                {(user?.id == author.id ? "you!" : author.displayName) ??
+                  "unknown"}
               </p>
             )}
           </div>
@@ -118,7 +116,7 @@ export function SceneryCard({
                       if (user?.id === item.authorId || user?.admin) {
                         const result = await deleteMap(item.id);
                         if (result) {
-                          toast.error("Successfully deleted map.");
+                          toast.error("Successfully deleted block.");
                         }
                       }
                     }}
@@ -136,7 +134,7 @@ export function SceneryCard({
 
                       const reportURL = import.meta.env.VITE_REPORT_WEBHOOK;
                       const reporter = user?.username ?? "anonymous";
-                      const message = `Report from ${reporter} of map: ${item.title} (${item.id})`;
+                      const message = `Report from ${reporter} of block: ${item.title} (${item.id})`;
                       const result = await sendDiscordWebhook(
                         reportURL,
                         message
@@ -167,11 +165,11 @@ export function SceneryCard({
             ))}
         </div>
 
-        <div className="relative aspect-square overflow-hidden">
-          <Link to={`/map/${item.id}`}>
+        <div className="relative aspect-square overflow-hidden items-center justify-center flex">
+          <Link to={`https://item.exchange/item/view/${item.ixId}`}>
             <img
-              src={item.images[0] || "placeholder.svg"}
-              className="object-cover w-full h-full transition-transform hover:scale-105 border rounded-xl"
+              src={item.image || "placeholder.svg"}
+              className="object-cover w-full h-full transition-transform border rounded-xl hover:scale-105"
               alt={item.title}
             />
           </Link>
@@ -200,18 +198,18 @@ export function SceneryCard({
                       }
 
                       if (user.id === item.authorId) {
-                        toast.error("You cannot vote for your own map.");
+                        toast.error("You cannot vote for your own block.");
                         return;
                       }
 
                       if (user.votes && user.votes.includes(item.id)) {
-                        toast.info("You have already voted for this map.");
+                        toast.info("You have already voted for this block.");
                         return;
                       }
 
                       setIsVoting(true);
 
-                      const success = await castVote(user, item, true);
+                      const success = await castVoteBlock(user, item, true);
 
                       setIsVoting(false);
 
@@ -233,19 +231,19 @@ export function SceneryCard({
               <Separator orientation="vertical" />
             </>
           )}
-          {/* View button */}
+          {/* Download button */}
           <Button
             variant={"outline"}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              if (item.viewLink) {
-                window.open(item.viewLink);
+              if (item.ixId) {
+                window.open(`https://item.exchange/item/download/${item.ixId}`);
               }
             }}
           >
-            <IconMap className="h-4 w-4" />
-            View Map
+            <Download className="h-4 w-4" />
+            Download
           </Button>
         </div>
 

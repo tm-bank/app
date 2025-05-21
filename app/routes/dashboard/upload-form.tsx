@@ -29,7 +29,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { searchMaps, uploadMap } from "~/store/db";
+import { search, uploadMap } from "~/store/db";
 
 const VALID_TAGS = {
   colors: [
@@ -198,7 +198,7 @@ export function UploadForm() {
 
       let result = await uploadMap(values);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await searchMaps("", dispatch, () => {});
+      await search("", dispatch, () => {}, false);
 
       toast.success("Map uploaded successfully!");
       form.reset();

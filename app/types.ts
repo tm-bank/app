@@ -18,3 +18,14 @@ export interface User {
   votes: string[];
   admin: boolean;
 }
+
+export interface Block {
+  id: string;
+  title: string;
+  image: string;
+  tags: string[];
+  votes: number;
+  createdAt: string;
+  authorId: string;
+  ixId: string; // ItemExchange id
+}

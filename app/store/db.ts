@@ -1,13 +1,15 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { Map, User } from "~/types";
+import type { Block, Map, User } from "~/types";
 import type { AppDispatch } from "./store";
 import { toast } from "sonner";
 import mapsSlice from "./maps-slice";
 
-export async function searchMaps(
+// Unified search for maps or blocks
+export async function search(
   q: string = "",
   dispatch: AppDispatch,
-  setLocalMaps: Dispatch<SetStateAction<Map[]>>
+  setLocalMaps: Dispatch<SetStateAction<(Map | Block)[]>>,
+  blocks: boolean
 ) {
   try {
     const filters: Record<string, string> = {};
@@ -32,10 +34,11 @@ export async function searchMaps(
     if (filters.author) params.append("author", filters.author);
     if (tags.length > 0) params.append("tags", tags.join(","));
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/maps/search?${params.toString()}`,
-      { credentials: "include" }
-    );
+    const endpoint = blocks
+      ? `${import.meta.env.VITE_API_URL}/blocks/search?${params.toString()}`
+      : `${import.meta.env.VITE_API_URL}/maps/search?${params.toString()}`;
+
+    const res = await fetch(endpoint, { credentials: "include" });
 
     if (!res.ok) throw new Error(await res.text());
 
@@ -49,12 +52,15 @@ export async function searchMaps(
       }
     }
 
-    dispatch(mapsSlice.actions.setMaps(data));
+    // Only update mapsSlice for maps, not blocks
+    if (!blocks) {
+      dispatch(mapsSlice.actions.setMaps(data));
+    }
 
     return data;
   } catch (e) {
-    console.error(`Failed to search maps:`, e);
-    toast.error(`Failed to search maps: ${e}`);
+    console.error(`Failed to search ${blocks ? "blocks" : "maps"}:`, e);
+    toast.error(`Failed to search ${blocks ? "blocks" : "maps"}: ${e}`);
     return [];
   }
 }
@@ -226,6 +232,36 @@ export async function castVote(
   }
 }
 
+export async function castVoteBlock(
+  user: User,
+  block: Block,
+  up: boolean
+): Promise<boolean> {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/vote`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        blockId: block.id,
+        up,
+      }),
+    });
+
+    if (!res.ok) {
+      toast.error("Failed to cast vote");
+      return false;
+    }
+
+    toast.success(up ? "Upvoted!" : "Downvoted!");
+    return true;
+  } catch (e) {
+    toast.error("Failed to cast vote.");
+    return false;
+  }
+}
+
 export async function editMap(
   mapId: string,
   data: {
@@ -253,4 +289,123 @@ export async function editMap(
   }
 
   return await res.json();
+}
+
+export async function uploadBlock(data: {
+  title: string;
+  view_link?: string;
+  tags: string[];
+  image?: string;
+  ixId?: string;
+}) {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      title: data.title,
+      viewLink: data.view_link,
+      tags: data.tags,
+      image: data.image,
+      ixId: data.ixId,
+    }),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to upload block");
+  }
+
+  return await res.json();
+}
+
+export async function editBlock(
+  blockId: string,
+  data: {
+    title?: string;
+    view_link?: string;
+    tags?: string[];
+    image?: string;
+    ixId?: string;
+  }
+) {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/${blockId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      title: data.title,
+      viewLink: data.view_link,
+      tags: data.tags,
+      image: data.image,
+      ixId: data.ixId,
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to update block");
+  }
+
+  return await res.json();
+}
+
+export async function deleteBlock(id: string = "") {
+  if (!id) return false;
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        blockId: id,
+      }),
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Failed to delete block");
+    }
+
+    return true;
+  } catch (e) {
+    console.error(`Failed to delete block:`, e);
+    toast.error(`Failed to delete block: ${e}`);
+    return false;
+  }
+}
+
+export async function getBlock(id: string = "") {
+  if (!id) return undefined;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/${id}`, {
+      credentials: "include",
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const data = await res.json();
+    return data;
+  } catch (e: any) {
+    if (e.name === "AbortError") {
+      console.error(`Request for block ${id} timed out`);
+      return undefined;
+    }
+
+    console.error(`Failed to get block:`, e);
+    toast.error(`Failed to get block: ${e}`);
+    return undefined;
+  }
 }

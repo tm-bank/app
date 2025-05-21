@@ -27,7 +27,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { searchMaps, editMap } from "~/store/db";
+import { search, editMap } from "~/store/db";
 
 const VALID_TAGS = {
   colors: [
@@ -220,7 +220,7 @@ export function EditForm({
 
       await editMap(map.id, values);
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await searchMaps("", dispatch, () => {});
+      await search("", dispatch, () => {}, false);
 
       toast.success("Map updated successfully!");
       if (onSuccess) onSuccess();

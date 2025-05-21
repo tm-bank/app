@@ -1,5 +1,5 @@
 import React, { type ReactNode } from "react";
-import { Grid3X3, LucideLayoutDashboard } from "lucide-react";
+import { Boxes, Grid3X3, LucideLayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +15,7 @@ import {
 import { Link, useLocation } from "react-router";
 
 import { useAppDispatch } from "~/store/store";
-import { searchMaps } from "~/store/db";
+import { search } from "~/store/db";
 
 import { Footer } from "./footer";
 import { Header } from "./header";
@@ -38,46 +38,49 @@ const LOCATIONS = [
     to: "/dashboard",
     icon: <LucideLayoutDashboard />,
   },
+  {
+    display: "Blocks",
+    to: "/blocks",
+    icon: <Boxes />,
+  },
 ] as Location[];
-
 export function TrackmaniaSidebar() {
   const routerLocation = useLocation();
   const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [localMaps, setLocalMaps] = React.useState<any[]>([]);
+  const [localItems, setLocalItems] = React.useState<any[]>([]);
   const { state } = useSidebar();
   const [isLoading, setIsLoading] = React.useState(true);
+
+  // Determine what to load based on route
+  const isBlocksRoute = routerLocation.pathname.startsWith("/blocks");
 
   React.useEffect(() => {
     let isMounted = true;
 
-    const fetchInitialMaps = async () => {
+    const fetchInitial = async () => {
       setIsLoading(true);
       try {
-        await searchMaps("", dispatch, (maps) => {
-          if (isMounted) setLocalMaps(maps);
-        });
+        await search(searchQuery, dispatch, setLocalItems, isBlocksRoute);
       } finally {
         if (isMounted) setIsLoading(false);
       }
     };
 
-    fetchInitialMaps();
+    fetchInitial();
 
     return () => {
       isMounted = false;
     };
-  }, [dispatch]);
+  }, [dispatch, isBlocksRoute]);
 
   React.useEffect(() => {
     let isMounted = true;
     const timer = setTimeout(async () => {
       try {
-        await searchMaps(searchQuery, dispatch, (maps) => {
-          if (isMounted) setLocalMaps(maps);
-        });
+        await search(searchQuery, dispatch, setLocalItems, isBlocksRoute);
       } catch (error) {
-        console.error("Error searching maps:", error);
+        console.error("Error searching:", error);
       }
     }, 300);
 
@@ -85,19 +88,19 @@ export function TrackmaniaSidebar() {
       clearTimeout(timer);
       isMounted = false;
     };
-  }, [searchQuery, dispatch]);
+  }, [searchQuery, dispatch, isBlocksRoute]);
 
   const tagCounts = React.useMemo(() => {
     if (isLoading) return {};
-    return localMaps.reduce<Record<string, number>>((acc, map) => {
-      if (map.tags && Array.isArray(map.tags)) {
-        map.tags.forEach((tag: string) => {
+    return localItems.reduce<Record<string, number>>((acc, item) => {
+      if (item.tags && Array.isArray(item.tags)) {
+        item.tags.forEach((tag: string) => {
           acc[tag] = (acc[tag] || 0) + 1;
         });
       }
       return acc;
     }, {});
-  }, [localMaps, isLoading]);
+  }, [localItems, isLoading]);
 
   const sortedTags = React.useMemo(() => {
     return Object.entries(tagCounts)
@@ -119,7 +122,7 @@ export function TrackmaniaSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {LOCATIONS.map((location) => (
-                <SidebarMenuItem>
+                <SidebarMenuItem key={location.display}>
                   <Link to={location.to}>
                     <SidebarMenuButton
                       tooltip="Browse"
@@ -140,7 +143,7 @@ export function TrackmaniaSidebar() {
           isLoading,
           sortedTags,
           setSearchQuery,
-          localMaps,
+          localMaps: localItems,
         })}
       </SidebarContent>
       <SidebarRail />
