@@ -45,9 +45,19 @@ const VALID_TAGS = {
     "Brown",
     "Lime",
     "Teal",
-    "Magenta"
+    "Magenta",
   ],
-  styles: ["Tech", "Wood", "Grass", "Dirt", "Plastic", "Wet", "Reactor", "Ice", "Fullspeed"],
+  styles: [
+    "Tech",
+    "Wood",
+    "Grass",
+    "Dirt",
+    "Plastic",
+    "Wet",
+    "Reactor",
+    "Ice",
+    "Fullspeed",
+  ],
   themes: [
     "Dark",
     "Terrain",
@@ -95,7 +105,13 @@ const formSchema = z.object({
     .min(1, { message: "Please provide at least one image URL." }),
 });
 
-export function EditForm({ map, onSuccess }: { map: any; onSuccess?: () => void }) {
+export function EditForm({
+  map,
+  onSuccess,
+}: {
+  map: any;
+  onSuccess?: () => void;
+}) {
   const [imageUrls, setImageUrls] = useState<string[]>(map?.images || []);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
@@ -124,6 +140,42 @@ export function EditForm({ map, onSuccess }: { map: any; onSuccess?: () => void 
       form.setValue("images", [...form.getValues("images"), url]);
     } else if (url) {
       toast.error("Please enter a valid image URL (jpg, jpeg, png, webp).");
+    }
+  };
+
+  const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR;
+
+  const handleAddImgurAlbum = async () => {
+    const albumUrl = prompt("Enter Imgur album URL:");
+    if (!albumUrl) return;
+
+    const match = albumUrl.match(/imgur\.com\/a\/([a-zA-Z0-9]+)/);
+    if (!match) {
+      toast.error("Invalid Imgur album URL.");
+      return;
+    }
+    const albumHash = match[1];
+
+    try {
+      const res = await fetch(
+        `https://api.imgur.com/3/album/${albumHash}/images`,
+        {
+          headers: {
+            Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (!data.success) {
+        toast.error("Failed to fetch Imgur album.");
+        return;
+      }
+      const urls = data.data.map((img: any) => img.link);
+      setImageUrls((prev) => [...prev, ...urls]);
+      form.setValue("images", [...form.getValues("images"), ...urls]);
+      toast.success(`Added ${urls.length} images from Imgur album.`);
+    } catch (e) {
+      toast.error("Failed to fetch Imgur album.");
     }
   };
 
@@ -331,9 +383,18 @@ export function EditForm({ map, onSuccess }: { map: any; onSuccess?: () => void 
                           <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                           <span>Add URL</span>
                         </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-32 h-32 flex flex-col items-center justify-center"
+                          onClick={handleAddImgurAlbum}
+                        >
+                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                          <span>Add Imgur Album</span>
+                        </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-full">
+                      <div className="flex items-center justify-center w-full gap-2">
                         <Button
                           type="button"
                           variant="outline"
@@ -344,6 +405,19 @@ export function EditForm({ map, onSuccess }: { map: any; onSuccess?: () => void 
                           <span>
                             <span className="font-semibold">
                               Click to add image URL
+                            </span>
+                          </span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full h-32 flex flex-col items-center justify-center"
+                          onClick={handleAddImgurAlbum}
+                        >
+                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                          <span>
+                            <span className="font-semibold">
+                              Add Imgur Album
                             </span>
                           </span>
                         </Button>
