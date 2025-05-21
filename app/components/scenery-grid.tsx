@@ -259,7 +259,7 @@ export function SceneryCard({
 
       {showEdit && (
         <Dialog open={showEdit} onOpenChange={setShowEdit}>
-          <DialogContent>
+          <DialogContent className="min-w-60">
             <EditForm map={item} onSuccess={() => setShowEdit(false)} />
           </DialogContent>
         </Dialog>
