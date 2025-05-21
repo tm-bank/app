@@ -53,7 +53,7 @@ export async function search(
       }
     }
 
-    if (!blocks) {
+    if (blocks) {
       dispatch(blocksSlice.actions.setBlocks(data));
     }
 
