@@ -97,13 +97,20 @@ export function TrackmaniaSidebar() {
     };
   }, [searchQuery, dispatch]);
 
-  const sortedTags = React.useMemo(() => {
-    const tags = [
-      ...(localMaps?.flatMap((item) => item.tags || []) ?? []),
-      ...(localBlocks?.flatMap((item) => item.tags || []) ?? []),
-    ];
-    return Array.from(new Set(tags)).sort((a, b) => a - b).slice(0, 5);
-  }, [localMaps, localBlocks]);
+const sortedTags = React.useMemo(() => {
+ 
+  const tagCounts: Record<string, number> = {};
+  [...(localMaps ?? []), ...(localBlocks ?? [])].forEach(item => {
+    (item.tags ?? []).forEach((tag: string) => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+  });
+ 
+  return Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([tag]) => tag)
+    .slice(0, 5);
+}, [localMaps, localBlocks]);
 
   return (
     <Sidebar collapsible="icon">
