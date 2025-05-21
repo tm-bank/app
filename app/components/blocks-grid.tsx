@@ -97,6 +97,7 @@ export function BlockCard({
                   <DropdownMenuItem
                     className="text-destructive"
                     onClick={async (e) => {
+                      console.log("delete clicked");
                       e.stopPropagation();
                       e.preventDefault();
                       if (user?.id === item.authorId || user?.admin) {
