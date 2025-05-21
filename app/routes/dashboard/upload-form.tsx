@@ -121,7 +121,7 @@ export function UploadForm() {
   const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR; // Use your env variable
 
   const handleAddImgurAlbum = async () => {
-    const albumUrl = prompt("Enter Imgur album URL:");
+    const albumUrl = prompt("Enter Imgur album URL (e.g https://imgur.com/a/2XlqSba):");
     if (!albumUrl) return;
 
     const match = albumUrl.match(/imgur\.com\/a\/([a-zA-Z0-9\-_]+)/);
@@ -324,7 +324,7 @@ export function UploadForm() {
                     <div className="flex flex-row gap-2">Images</div>
                     <br />
                     <span className="text-muted-foreground">
-                      The first image will show as the banner.
+                      The first image will show as the banner. These images must be uploaded to a CDN, such as Imgur.
                     </span>
                   </div>
                   <div className="mt-1.5">
