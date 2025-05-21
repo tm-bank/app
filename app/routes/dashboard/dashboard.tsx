@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import Wrapper from "~/wrapper";
 import { UploadForm } from "./upload-form";
 import { MapGrid } from "./map-grid";
+import { BlockGrid } from "./block-grid";
 
 export function meta() {
   return [
@@ -23,10 +24,14 @@ export default function Dash() {
           <Tabs defaultValue="maps" className="space-y-4">
             <TabsList>
               <TabsTrigger value="maps">My Maps</TabsTrigger>
+              <TabsTrigger value="blocks">My Blocks</TabsTrigger>
               <TabsTrigger value="upload">Upload</TabsTrigger>
             </TabsList>
             <TabsContent value="maps" className="space-y-4">
               <MapGrid />
+            </TabsContent>
+             <TabsContent value="blocks" className="space-y-4">
+              <BlockGrid />
             </TabsContent>
             <TabsContent value="upload" className="space-y-4">
               <UploadForm />

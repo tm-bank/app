@@ -307,7 +307,7 @@ export async function uploadBlock(data: {
     },
     body: JSON.stringify({
       title: data.title,
-      viewLink: data.view_link,
+      viewLink: `https://item.exchange/item/view/${data.ixId}`,
       tags: data.tags,
       image: data.image,
       ixId: data.ixId,

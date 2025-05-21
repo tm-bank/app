@@ -28,70 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { search, editMap } from "~/store/db";
-
-const VALID_TAGS = {
-  colors: [
-    "Red",
-    "Orange",
-    "Yellow",
-    "Green",
-    "Blue",
-    "Purple",
-    "Black",
-    "White",
-    "Grey",
-    "Pink",
-    "Brown",
-    "Lime",
-    "Teal",
-    "Magenta",
-  ],
-  styles: [
-    "Tech",
-    "Wood",
-    "Grass",
-    "Dirt",
-    "Plastic",
-    "Wet",
-    "Reactor",
-    "Ice",
-    "Fullspeed",
-  ],
-  themes: [
-    "Dark",
-    "Terrain",
-    "Nature",
-    "Minimalistic",
-    "Nadeo",
-    "Complex",
-    "Abstract",
-    "Towers",
-    "MegaStructures",
-    "Immersive",
-    "Vanilla",
-    "Vanila++",
-    "Blender",
-    "Water",
-    "Rocks",
-    "Sharp",
-    "Curves",
-    "Blocky",
-    "Zoned",
-  ],
-  special_themes: [
-    "Space",
-    "Pirates",
-    "Medieval",
-    "Modern",
-    "Sci-Fi",
-    "City",
-    "Farm",
-    "Forest",
-    "Hills",
-  ],
-  blocks: ["Platform", "Canopy"],
-  base: ["Void", "NoStadium", "Stadium", "WaterBase"],
-};
+import { VALID_TAGS } from "~/store/tags";
 
 const formSchema = z.object({
   title: z.string().min(3, {
