@@ -25,8 +25,8 @@ import { search, uploadMap, uploadBlock } from "~/store/db"
 import { VALID_TAGS } from "~/store/tags"
 
 const mapFormSchema = z.object({
-  title: z.string().min(3, {
-    message: "Title must be at least 3 characters.",
+  title: z.string().min(1, {
+    message: "Title must be at least 1 character.",
   }),
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
