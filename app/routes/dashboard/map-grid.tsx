@@ -16,10 +16,6 @@ export function MapGrid() {
     toast.error("Failed to get maps!");
   }
 
-  if (!user) {
-    toast.error("User is null!");
-  }
-
   return (
     <div className="p-6">
       <div className="mb-6">

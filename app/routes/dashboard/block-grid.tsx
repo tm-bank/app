@@ -16,9 +16,7 @@ export function BlockGrid() {
     toast.error("Failed to get blocks!");
   }
 
-  if (!user) {
-    toast.error("User is null!");
-  }
+
 
   return (
     <div className="p-6">
