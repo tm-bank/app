@@ -71,9 +71,6 @@ export async function getMap(id: string = "") {
   if (!id) return undefined;
 
   try {
-    const params = new URLSearchParams();
-    params.append("queryId", id);
-
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -117,7 +114,7 @@ export async function deleteMap(id: string = "") {
 
     if (!res.ok) {
       const error = await res.json();
-      throw new Error(error.error || "Failed to upload map");
+      throw new Error(error.error || "Failed to delete map");
     }
 
     return await res.json();
@@ -145,7 +142,7 @@ export async function uploadMap(data: {
       viewLink: data.view_link,
       tags: data.tags,
       images: data.images,
-      blockIds: data.blockIds, // <-- Add this line
+      blockIds: data.blockIds, // many-to-many
     }),
     credentials: "include",
   });
@@ -178,7 +175,7 @@ export async function getUser(id: string = ""): Promise<User | undefined> {
     params.append("queryId", id);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/user?${params.toString()}`,
@@ -273,7 +270,7 @@ export async function editMap(
     view_link?: string;
     tags?: string[];
     images?: string[];
-    blockIds?: string[]; // <-- Add this line
+    blockIds?: string[];
   }
 ) {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/${mapId}`, {
@@ -285,7 +282,7 @@ export async function editMap(
       viewLink: data.view_link,
       tags: data.tags,
       images: data.images,
-      blockIds: data.blockIds, // <-- Add this line
+      blockIds: data.blockIds, // many-to-many
     }),
   });
 
@@ -302,6 +299,7 @@ export async function uploadBlock(data: {
   tags: string[];
   file?: File;
   image?: string;
+  mapIds?: string[]; // for many-to-many, if you want to link blocks to maps from the block side
 }) {
   const formData = new FormData();
   formData.append("title", data.title);
@@ -309,9 +307,12 @@ export async function uploadBlock(data: {
 
   if (data.file) {
     formData.append("file", data.file);
-  } 
+  }
   if (data.image) {
     formData.append("image", data.image);
+  }
+  if (data.mapIds && Array.isArray(data.mapIds)) {
+    formData.append("mapIds", JSON.stringify(data.mapIds));
   }
 
   const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/`, {
@@ -336,6 +337,7 @@ export async function editBlock(
     tags?: string[];
     file?: File;
     image?: string;
+    mapIds?: string[]; // for many-to-many
   }
 ) {
   const formData = new FormData();
@@ -345,9 +347,12 @@ export async function editBlock(
 
   if (data.file) {
     formData.append("file", data.file);
-  } 
+  }
   if (data.image) {
     formData.append("image", data.image);
+  }
+  if (data.mapIds && Array.isArray(data.mapIds)) {
+    formData.append("mapIds", JSON.stringify(data.mapIds));
   }
 
   const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/${blockId}`, {
