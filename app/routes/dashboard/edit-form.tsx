@@ -145,7 +145,9 @@ export function EditForm({
 
     try {
       if (!user) {
-        toast.error(`You must be signed in to edit ${isBlock ? "block" : "map"}s.`);
+        toast.error(
+          `You must be signed in to edit ${isBlock ? "block" : "map"}s.`
+        );
         return;
       }
 
@@ -190,9 +192,14 @@ export function EditForm({
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>${isBlock ? "Block" : "Map"} Title</FormLabel>
+                      <FormLabel>{isBlock ? "Block" : "Map"} Title</FormLabel>
                       <FormControl>
-                        <Input placeholder={`Enter ${isBlock ? "block" : "map"} title`} {...field} />
+                        <Input
+                          placeholder={`Enter ${
+                            isBlock ? "block" : "map"
+                          } title`}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -287,93 +294,95 @@ export function EditForm({
                 />
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-row gap-2">Images</div>
-                    <br />
-                    <span className="text-muted-foreground">
-                      The first image will show as the banner.
-                    </span>
-                  </div>
-                  {/* Only show image UI for maps or if block has images */}
-                  {!isBlock && (
-                    <div className="mt-1.5">
-                      {imageUrls.length > 0 ? (
-                        <div className="flex flex-wrap gap-4">
-                          {imageUrls.map((url, idx) => (
-                            <div
-                              key={url}
-                              className="relative w-32 h-32 rounded-lg overflow-visible"
-                            >
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="absolute top-2 right-2 z-10 h-6 w-6"
-                                onClick={() => clearImageUrl(idx)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                              <img
-                                src={url || "/placeholder.svg"}
-                                className="max-w-full max-h-full rounded"
-                              />
-                            </div>
-                          ))}
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-32 h-32 flex flex-col items-center justify-center"
-                            onClick={handleAddImageUrl}
-                          >
-                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                            <span>Add URL</span>
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-32 h-32 flex flex-col items-center justify-center"
-                            onClick={handleAddImgurAlbum}
-                          >
-                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                            <span>Add Imgur Album</span>
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center w-full gap-2 flex-col">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full h-32 flex flex-col items-center justify-center"
-                            onClick={handleAddImageUrl}
-                          >
-                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                            <span>
-                              <span className="font-semibold">
-                                Click to add image URL
-                              </span>
-                            </span>
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full h-32 flex flex-col items-center justify-center"
-                            onClick={handleAddImgurAlbum}
-                          >
-                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                            <span>
-                              <span className="font-semibold">
-                                Add Imgur Album
-                              </span>
-                            </span>
-                          </Button>
-                        </div>
-                      )}
+              {!isBlock && (
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-row gap-2">Images</div>
+                      <br />
+                      <span className="text-muted-foreground">
+                        The first image will show as the banner.
+                      </span>
                     </div>
-                  )}
+                    {/* Only show image UI for maps or if block has images */}
+                    {!isBlock && (
+                      <div className="mt-1.5">
+                        {imageUrls.length > 0 ? (
+                          <div className="flex flex-wrap gap-4">
+                            {imageUrls.map((url, idx) => (
+                              <div
+                                key={url}
+                                className="relative w-32 h-32 rounded-lg overflow-visible"
+                              >
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2 z-10 h-6 w-6"
+                                  onClick={() => clearImageUrl(idx)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                                <img
+                                  src={url || "/placeholder.svg"}
+                                  className="max-w-full max-h-full rounded"
+                                />
+                              </div>
+                            ))}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-32 h-32 flex flex-col items-center justify-center"
+                              onClick={handleAddImageUrl}
+                            >
+                              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                              <span>Add URL</span>
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-32 h-32 flex flex-col items-center justify-center"
+                              onClick={handleAddImgurAlbum}
+                            >
+                              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                              <span>Add Imgur Album</span>
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center w-full gap-2 flex-col">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full h-32 flex flex-col items-center justify-center"
+                              onClick={handleAddImageUrl}
+                            >
+                              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                              <span>
+                                <span className="font-semibold">
+                                  Click to add image URL
+                                </span>
+                              </span>
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full h-32 flex flex-col items-center justify-center"
+                              onClick={handleAddImgurAlbum}
+                            >
+                              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                              <span>
+                                <span className="font-semibold">
+                                  Add Imgur Album
+                                </span>
+                              </span>
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <Button
