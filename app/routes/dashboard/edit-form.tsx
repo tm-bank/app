@@ -36,9 +36,7 @@ const formSchema = z.object({
   }),
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
-  images: z
-    .array(z.string().url())
-    .min(1, { message: "Please provide at least one image URL." }),
+  images: z.array(z.string().url()).optional(), // <-- Make images optional
 });
 
 export function EditForm({
@@ -75,7 +73,7 @@ export function EditForm({
     const url = prompt("Enter image URL:");
     if (url && /^https?:\/\/.+\.(jpg|jpeg|png|webp)$/i.test(url)) {
       setImageUrls((prev) => [...prev, url]);
-      form.setValue("images", [...form.getValues("images"), url]);
+      form.setValue("images", [...(form.getValues("images") || []), url]);
     } else if (url) {
       toast.error("Please enter a valid image URL (jpg, jpeg, png, webp).");
     }
@@ -110,7 +108,7 @@ export function EditForm({
       }
       const urls = data.data.map((img: any) => img.link);
       setImageUrls((prev) => [...prev, ...urls]);
-      form.setValue("images", [...form.getValues("images"), ...urls]);
+      form.setValue("images", [...(form.getValues("images") || []), ...urls]);
       toast.success(`Added ${urls.length} images from Imgur album.`);
     } catch (e) {
       toast.error("Failed to fetch Imgur album.");
@@ -119,9 +117,8 @@ export function EditForm({
 
   const clearImageUrl = (index: number) => {
     setImageUrls((prev) => prev.filter((_, i) => i !== index));
-    const newImages = form
-      .getValues("images")
-      .filter((_: string, i: number) => i !== index);
+    const images = form.getValues("images") || [];
+    const newImages = images.filter((_: string, i: number) => i !== index);
     form.setValue("images", newImages);
   };
 
@@ -152,7 +149,8 @@ export function EditForm({
         return;
       }
 
-      if (!values.images || values.images.length === 0) {
+      // Only require images for maps, not blocks
+      if (!isBlock && (!values.images || values.images.length === 0)) {
         toast.error("Please provide at least one image URL.");
         return;
       }
@@ -291,6 +289,7 @@ export function EditForm({
                       The first image will show as the banner.
                     </span>
                   </div>
+                  {/* Only show image UI for maps or if block has images */}
                   {!isBlock && (
                     <div className="mt-1.5">
                       {imageUrls.length > 0 ? (
@@ -373,7 +372,7 @@ export function EditForm({
             <Button
               type="submit"
               className="w-full md:w-auto"
-              disabled={imageUrls.length === 0 || isUploading}
+              disabled={(!isBlock && imageUrls.length === 0) || isUploading}
             >
               {isUploading ? "Saving..." : "Save Changes"}
             </Button>
