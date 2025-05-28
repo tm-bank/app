@@ -44,8 +44,10 @@ const formSchema = z.object({
 export function EditForm({
   map,
   onSuccess,
+  isBlock,
 }: {
   map: any;
+  isBlock?: boolean;
   onSuccess?: () => void;
 }) {
   const [imageUrls, setImageUrls] = useState<string[]>(map?.images || []);
@@ -192,29 +194,31 @@ export function EditForm({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="view_link"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        View Link <Separator orientation="vertical" />
-                        <span className=" text-muted-foreground">
-                          trackmania.io, mania.exchange, ...
-                        </span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter map link"
-                          className="resize-none"
-                          rows={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {!isBlock && (
+                  <FormField
+                    control={form.control}
+                    name="view_link"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          View Link <Separator orientation="vertical" />
+                          <span className=" text-muted-foreground">
+                            trackmania.io, mania.exchange, ...
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Enter map link"
+                            className="resize-none"
+                            rows={4}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}
@@ -330,7 +334,7 @@ export function EditForm({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-full gap-2">
+                      <div className="flex items-center justify-center w-full gap-2 flex-col">
                         <Button
                           type="button"
                           variant="outline"
