@@ -291,81 +291,81 @@ export function EditForm({
                       The first image will show as the banner.
                     </span>
                   </div>
-                  (!isBlock &&
-                  <div className="mt-1.5">
-                    {imageUrls.length > 0 ? (
-                      <div className="flex flex-wrap gap-4">
-                        {imageUrls.map((url, idx) => (
-                          <div
-                            key={url}
-                            className="relative w-32 h-32 rounded-lg overflow-visible"
-                          >
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2 z-10 h-6 w-6"
-                              onClick={() => clearImageUrl(idx)}
+                  {!isBlock && (
+                    <div className="mt-1.5">
+                      {imageUrls.length > 0 ? (
+                        <div className="flex flex-wrap gap-4">
+                          {imageUrls.map((url, idx) => (
+                            <div
+                              key={url}
+                              className="relative w-32 h-32 rounded-lg overflow-visible"
                             >
-                              <X className="h-4 w-4" />
-                            </Button>
-                            <img
-                              src={url || "/placeholder.svg"}
-                              className="max-w-full max-h-full rounded"
-                            />
-                          </div>
-                        ))}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-32 h-32 flex flex-col items-center justify-center"
-                          onClick={handleAddImageUrl}
-                        >
-                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                          <span>Add URL</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-32 h-32 flex flex-col items-center justify-center"
-                          onClick={handleAddImgurAlbum}
-                        >
-                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                          <span>Add Imgur Album</span>
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center w-full gap-2 flex-col">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full h-32 flex flex-col items-center justify-center"
-                          onClick={handleAddImageUrl}
-                        >
-                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                          <span>
-                            <span className="font-semibold">
-                              Click to add image URL
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-2 right-2 z-10 h-6 w-6"
+                                onClick={() => clearImageUrl(idx)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                              <img
+                                src={url || "/placeholder.svg"}
+                                className="max-w-full max-h-full rounded"
+                              />
+                            </div>
+                          ))}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-32 h-32 flex flex-col items-center justify-center"
+                            onClick={handleAddImageUrl}
+                          >
+                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                            <span>Add URL</span>
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-32 h-32 flex flex-col items-center justify-center"
+                            onClick={handleAddImgurAlbum}
+                          >
+                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                            <span>Add Imgur Album</span>
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center w-full gap-2 flex-col">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-32 flex flex-col items-center justify-center"
+                            onClick={handleAddImageUrl}
+                          >
+                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                            <span>
+                              <span className="font-semibold">
+                                Click to add image URL
+                              </span>
                             </span>
-                          </span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full h-32 flex flex-col items-center justify-center"
-                          onClick={handleAddImgurAlbum}
-                        >
-                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                          <span>
-                            <span className="font-semibold">
-                              Add Imgur Album
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-32 flex flex-col items-center justify-center"
+                            onClick={handleAddImgurAlbum}
+                          >
+                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                            <span>
+                              <span className="font-semibold">
+                                Add Imgur Album
+                              </span>
                             </span>
-                          </span>
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  )
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
