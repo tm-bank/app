@@ -36,7 +36,8 @@ const formSchema = z.object({
   }),
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
-  images: z.array(z.string().url()).optional(), // <-- Make images optional
+  images: z.array(z.string().url()).optional(),
+  blockIds: z.array(z.string()).optional(), 
 });
 
 export function EditForm({
@@ -62,6 +63,7 @@ export function EditForm({
       view_link: map?.viewLink || "",
       tags: map?.tags || [],
       images: map?.images || [],
+      blockIds: map?.blocks?.map((b: any) => b.id) || [],
     },
   });
 
@@ -151,14 +153,16 @@ export function EditForm({
         return;
       }
 
-      // Only require images for maps, not blocks
       if (!isBlock && (!values.images || values.images.length === 0)) {
         toast.error("Please provide at least one image URL.");
         return;
       }
 
       if (!isBlock) {
-        await editMap(map.id, values);
+        await editMap(map.id, {
+          ...values,
+          blockIds: values.blockIds,
+        });
       } else {
         await editBlock(map.id, {
           ...values,
@@ -195,9 +199,7 @@ export function EditForm({
                       <FormLabel>{isBlock ? "Block" : "Map"} Title</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder={`Enter ${
-                            isBlock ? "block" : "map"
-                          } title`}
+                          placeholder={`Enter ${isBlock ? "block" : "map"} title`}
                           {...field}
                         />
                       </FormControl>
@@ -292,8 +294,54 @@ export function EditForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Add blockIds input for maps */}
+                {!isBlock && (
+                  <FormField
+                    control={form.control}
+                    name="blockIds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Blocks <Separator orientation="vertical" />
+                          <span className=" text-muted-foreground">
+                            paste{" "}
+                            <a
+                              className="underline"
+                              href="https://tmbank.onrender.com/blocks"
+                            >
+                              macroblock
+                            </a>{" "}
+                            ids that are used in your map{" "}
+                            <span className="text-xs">
+                              (e.g. c6cdb725-fb0b-4c8c-a245-64fbf6a4f209)
+                            </span>
+                          </span>
+                        </FormLabel>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Input
+                            placeholder="Enter block IDs"
+                            className="w-full"
+                            value={field.value?.join(",") || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(
+                                value
+                                  .split(",")
+                                  .map((id) => id.trim())
+                                  .filter((id) => id.length > 0)
+                              );
+                            }}
+                          />
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
 
+              {/* ...existing image fields... */}
               {!isBlock && (
                 <div className="space-y-4">
                   <div>
@@ -304,7 +352,6 @@ export function EditForm({
                         The first image will show as the banner.
                       </span>
                     </div>
-                    {/* Only show image UI for maps or if block has images */}
                     {!isBlock && (
                       <div className="mt-1.5">
                         {imageUrls.length > 0 ? (
