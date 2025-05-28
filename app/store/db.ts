@@ -295,19 +295,18 @@ export async function editMap(
 
 export async function uploadBlock(data: {
   title: string;
-  view_link?: string;
   tags: string[];
   file?: File;
   image?: string;
 }) {
   const formData = new FormData();
   formData.append("title", data.title);
-  formData.append("viewLink", data.view_link ?? "");
   formData.append("tags", JSON.stringify(data.tags));
 
   if (data.file) {
     formData.append("file", data.file);
-  } else if (data.image) {
+  } 
+  if (data.image) {
     formData.append("image", data.image);
   }
 
@@ -342,7 +341,8 @@ export async function editBlock(
 
   if (data.file) {
     formData.append("file", data.file);
-  } else if (data.image) {
+  } 
+  if (data.image) {
     formData.append("image", data.image);
   }
 

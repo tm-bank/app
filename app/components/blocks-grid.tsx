@@ -78,7 +78,6 @@ export function BlockCard({
     fetchAuthor();
   }, [item.authorId]);
 
-  // Helper to refresh blocks after delete/edit
   const refreshBlocks = async () => {
     await search("", dispatch, () => {}, true);
   };
