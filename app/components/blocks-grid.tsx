@@ -275,6 +275,7 @@ export function BlockCard({
                 setShowEdit(false);
                 await refreshBlocks();
               }}
+              isBlock
             />
           </DialogContent>
         </Dialog>

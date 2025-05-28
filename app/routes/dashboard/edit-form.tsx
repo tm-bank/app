@@ -291,6 +291,7 @@ export function EditForm({
                       The first image will show as the banner.
                     </span>
                   </div>
+                  (!isBlock &&
                   <div className="mt-1.5">
                     {imageUrls.length > 0 ? (
                       <div className="flex flex-wrap gap-4">
@@ -364,6 +365,7 @@ export function EditForm({
                       </div>
                     )}
                   </div>
+                  )
                 </div>
               </div>
             </div>
