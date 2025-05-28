@@ -133,6 +133,7 @@ export async function uploadMap(data: {
   view_link?: string;
   tags: string[];
   images: string[];
+  blockIds?: string[];
 }) {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/`, {
     method: "POST",
@@ -144,6 +145,7 @@ export async function uploadMap(data: {
       viewLink: data.view_link,
       tags: data.tags,
       images: data.images,
+      blockIds: data.blockIds, // <-- Add this line
     }),
     credentials: "include",
   });
@@ -271,6 +273,7 @@ export async function editMap(
     view_link?: string;
     tags?: string[];
     images?: string[];
+    blockIds?: string[]; // <-- Add this line
   }
 ) {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/maps/${mapId}`, {
@@ -282,6 +285,7 @@ export async function editMap(
       viewLink: data.view_link,
       tags: data.tags,
       images: data.images,
+      blockIds: data.blockIds, // <-- Add this line
     }),
   });
 

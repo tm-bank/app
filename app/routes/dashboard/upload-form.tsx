@@ -40,6 +40,7 @@ const mapFormSchema = z.object({
   images: z
     .array(z.string().url())
     .min(1, { message: "Please provide at least one image URL." }),
+  blockIds: z.array(z.string()).optional(),
 });
 
 const blockFormSchema = z.object({
@@ -75,6 +76,7 @@ export function UploadForm() {
       view_link: "",
       tags: [],
       images: [],
+      blockIds: [],
     },
   });
 
@@ -105,7 +107,7 @@ export function UploadForm() {
     }
   };
 
-  const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR; // Use your env variable
+  const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR;
 
   const handleAddImgurAlbum = async () => {
     if (activeTab !== "maps") {
@@ -193,7 +195,10 @@ export function UploadForm() {
         return;
       }
 
-      const result = await uploadMap(values);
+      const result = await uploadMap({
+        ...values,
+        blockIds: values.blockIds,
+      });
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await search("", dispatch, () => {}, false);
 
@@ -366,6 +371,48 @@ export function UploadForm() {
                                 </div>
                               )
                             )}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={mapForm.control}
+                      name="blockIds"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Blocks <Separator orientation="vertical" />
+                            <span className=" text-muted-foreground">
+                              paste{" "}
+                              <a
+                                className="underline"
+                                href="https://tmbank.onrender.com/blocks"
+                              >
+                                macroblock
+                              </a>{" "}
+                              ids that are used in your map{" "}
+                              <span className="text-xs">
+                                (e.g. c6cdb725-fb0b-4c8c-a245-64fbf6a4f209)
+                              </span>
+                            </span>
+                          </FormLabel>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            <Input
+                              placeholder="Enter block IDs"
+                              className="w-full"
+                              value={field.value?.join(",") || ""}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(
+                                  value
+                                    .split(",")
+                                    .map((id) => id.trim())
+                                    .filter((id) => id.length > 0)
+                                );
+                              }}
+                            />
                           </div>
                           <FormMessage />
                         </FormItem>
