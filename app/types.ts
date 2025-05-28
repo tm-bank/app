@@ -7,6 +7,7 @@ export interface Map {
   tags: string[];
   createdAt: string;
   authorId: string;
+  blocks: Block[]; // Relation to blocks
 }
 
 export interface User {
@@ -15,6 +16,7 @@ export interface User {
   displayName: string;
   avatar: string;
   maps: Map[];
+  blocks: Block[];
   votes: string[];
   admin: boolean;
 }
@@ -28,4 +30,7 @@ export interface Block {
   createdAt: string;
   authorId: string;
   bucketFileName: string;
+  mapsWhoUsed: string[];
+  mapId?: string | null;
+  map?: Map | null;
 }

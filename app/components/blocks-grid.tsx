@@ -21,6 +21,7 @@ import {
   ArrowBigUp,
   Download,
   Pencil,
+  LinkIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { EditForm } from "~/routes/dashboard/edit-form";
@@ -156,6 +157,21 @@ export function BlockCard({
                     Report
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuItem
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (navigator.clipboard) {
+                      await navigator.clipboard.writeText(item.id);
+                      toast.success("Item ID copied to clipboard");
+                    } else {
+                      toast.error("Failed to copy item ID");
+                    }
+                  }}
+                >
+                  <LinkIcon className="h-4 w-4 mr-2" />
+                  Copy Id
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
