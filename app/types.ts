@@ -27,5 +27,5 @@ export interface Block {
   votes: number;
   createdAt: string;
   authorId: string;
-  ixId: string; // ItemExchange id
+  bucketFileName: string;
 }

@@ -1,28 +1,35 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Button } from "~/components/ui/button"
-import { Card, CardContent } from "~/components/ui/card"
-import { Input } from "~/components/ui/input"
-import { Textarea } from "~/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { ChevronDown, Upload, X } from "lucide-react"
-import { toast } from "sonner"
-import { useAuth } from "~/providers/auth-provider"
-import { Separator } from "~/components/ui/separator"
-import { useDispatch } from "react-redux"
+import { useState, useRef } from "react";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { ChevronDown, Upload, X } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "~/providers/auth-provider";
+import { Separator } from "~/components/ui/separator";
+import { useDispatch } from "react-redux";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
-import { search, uploadMap, uploadBlock } from "~/store/db"
-import { VALID_TAGS } from "~/store/tags"
+} from "~/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { search, uploadMap, uploadBlock } from "~/store/db";
+import { VALID_TAGS } from "~/store/tags";
 
 const mapFormSchema = z.object({
   title: z.string().min(1, {
@@ -30,8 +37,10 @@ const mapFormSchema = z.object({
   }),
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
-  images: z.array(z.string().url()).min(1, { message: "Please provide at least one image URL." }),
-})
+  images: z
+    .array(z.string().url())
+    .min(1, { message: "Please provide at least one image URL." }),
+});
 
 const blockFormSchema = z.object({
   title: z.string().min(3, {
@@ -40,19 +49,25 @@ const blockFormSchema = z.object({
   view_link: z.string().optional(),
   tags: z.array(z.string()).min(1, { message: "Select at least one tag." }),
   image: z.string().url().optional(),
-  ixId: z.string(),
-})
+  file: z
+    .any()
+    .refine((file) => file instanceof File || file === undefined, {
+      message: "A GBX file is required.",
+    })
+    .optional(),
+});
 
 export function UploadForm() {
-  const [activeTab, setActiveTab] = useState<"maps" | "blocks">("maps")
-  const [imageUrls, setImageUrls] = useState<string[]>([])
-  const [blockImage, setBlockImage] = useState<string>("")
-  const [isUploading, setIsUploading] = useState(false)
-  const { user } = useAuth()
-  const dispatch = useDispatch()
-  const isSubmittingRef = useRef(false)
+  const [activeTab, setActiveTab] = useState<"maps" | "blocks">("maps");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [blockImage, setBlockImage] = useState<string>("");
+  const [blockFile, setBlockFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { user } = useAuth();
+  const dispatch = useDispatch();
+  const isSubmittingRef = useRef(false);
 
-  type MapFormValues = z.infer<typeof mapFormSchema>
+  type MapFormValues = z.infer<typeof mapFormSchema>;
   const mapForm = useForm<MapFormValues>({
     resolver: zodResolver(mapFormSchema),
     defaultValues: {
@@ -61,9 +76,9 @@ export function UploadForm() {
       tags: [],
       images: [],
     },
-  })
+  });
 
-  type BlockFormValues = z.infer<typeof blockFormSchema>
+  type BlockFormValues = z.infer<typeof blockFormSchema>;
   const blockForm = useForm<BlockFormValues>({
     resolver: zodResolver(blockFormSchema),
     defaultValues: {
@@ -71,150 +86,170 @@ export function UploadForm() {
       view_link: "",
       tags: [],
       image: "",
-      ixId: "",
+      file: undefined,
     },
-  })
+  });
 
   const handleAddImageUrl = () => {
-    const url = prompt("Enter image URL:")
+    const url = prompt("Enter image URL:");
     if (url && /^https?:\/\/.+\.(jpg|jpeg|png|webp)$/i.test(url)) {
       if (activeTab === "maps") {
-        setImageUrls((prev) => [...prev, url])
-        mapForm.setValue("images", [...mapForm.getValues("images"), url])
+        setImageUrls((prev) => [...prev, url]);
+        mapForm.setValue("images", [...mapForm.getValues("images"), url]);
       } else {
-        setBlockImage(url)
-        blockForm.setValue("image", url)
+        setBlockImage(url);
+        blockForm.setValue("image", url);
       }
     } else if (url) {
-      toast.error("Please enter a valid image URL (jpg, jpeg, png, webp).")
+      toast.error("Please enter a valid image URL (jpg, jpeg, png, webp).");
     }
-  }
+  };
 
-  const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR // Use your env variable
+  const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR; // Use your env variable
 
   const handleAddImgurAlbum = async () => {
     if (activeTab !== "maps") {
-      toast.error("Imgur albums are only supported for maps")
-      return
+      toast.error("Imgur albums are only supported for maps");
+      return;
     }
 
-    const albumUrl = prompt("Enter Imgur album URL (e.g https://imgur.com/a/2XlqSba):")
-    if (!albumUrl) return
+    const albumUrl = prompt(
+      "Enter Imgur album URL (e.g https://imgur.com/a/2XlqSba):"
+    );
+    if (!albumUrl) return;
 
-    const match = albumUrl.match(/imgur\.com\/a\/([a-zA-Z0-9\-_]+)/)
+    const match = albumUrl.match(/imgur\.com\/a\/([a-zA-Z0-9\-_]+)/);
     if (!match) {
-      toast.error("Invalid Imgur album URL.")
-      return
+      toast.error("Invalid Imgur album URL.");
+      return;
     }
-    const albumHash = match[1]
+    const albumHash = match[1];
 
     try {
-      const res = await fetch(`https://api.imgur.com/3/album/${albumHash}/images`, {
-        headers: {
-          Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
-        },
-      })
-      const data = await res.json()
+      const res = await fetch(
+        `https://api.imgur.com/3/album/${albumHash}/images`,
+        {
+          headers: {
+            Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+          },
+        }
+      );
+      const data = await res.json();
       if (!data.success) {
-        toast.error("Failed to fetch Imgur album.")
-        return
+        toast.error("Failed to fetch Imgur album.");
+        return;
       }
-      const urls = data.data.map((img: any) => img.link)
-      setImageUrls((prev) => [...prev, ...urls])
-      mapForm.setValue("images", [...mapForm.getValues("images"), ...urls])
-      toast.success(`Added ${urls.length} images from Imgur album.`)
+      const urls = data.data.map((img: any) => img.link);
+      setImageUrls((prev) => [...prev, ...urls]);
+      mapForm.setValue("images", [...mapForm.getValues("images"), ...urls]);
+      toast.success(`Added ${urls.length} images from Imgur album.`);
     } catch (e) {
-      toast.error("Failed to fetch Imgur album.")
+      toast.error("Failed to fetch Imgur album.");
     }
-  }
+  };
 
   const clearImageUrl = (index: number) => {
     if (activeTab === "maps") {
-      setImageUrls((prev) => prev.filter((_, i) => i !== index))
-      const newImages = mapForm.getValues("images").filter((_: string, i: number) => i !== index)
-      mapForm.setValue("images", newImages)
+      setImageUrls((prev) => prev.filter((_, i) => i !== index));
+      const newImages = mapForm
+        .getValues("images")
+        .filter((_: string, i: number) => i !== index);
+      mapForm.setValue("images", newImages);
     } else {
-      setBlockImage("")
-      blockForm.setValue("image", "")
+      setBlockImage("");
+      blockForm.setValue("image", "");
     }
-  }
+  };
 
-  const onTagToggle = (tag: string, selectedTags: string[], onChange: (tags: string[]) => void) => {
+  const onTagToggle = (
+    tag: string,
+    selectedTags: string[],
+    onChange: (tags: string[]) => void
+  ) => {
     if (selectedTags.includes(tag)) {
-      onChange(selectedTags.filter((t) => t !== tag))
+      onChange(selectedTags.filter((t) => t !== tag));
     } else {
-      onChange([...selectedTags, tag])
+      onChange([...selectedTags, tag]);
     }
-  }
+  };
 
   const onSubmitMap = async (values: MapFormValues) => {
     if (isSubmittingRef.current) {
-      toast.info("Upload already in progress, please wait")
-      return
+      toast.info("Upload already in progress, please wait");
+      return;
     }
 
-    isSubmittingRef.current = true
-    setIsUploading(true)
+    isSubmittingRef.current = true;
+    setIsUploading(true);
 
     try {
       if (!user) {
-        toast.error("You must be signed in to upload maps.")
-        return
+        toast.error("You must be signed in to upload maps.");
+        return;
       }
 
       if (!values.images || values.images.length === 0) {
-        toast.error("Please provide at least one image URL.")
-        return
+        toast.error("Please provide at least one image URL.");
+        return;
       }
 
-      const result = await uploadMap(values)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      await search("", dispatch, () => {}, false)
+      const result = await uploadMap(values);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await search("", dispatch, () => {}, false);
 
-      toast.success("Map uploaded successfully!")
-      mapForm.reset()
-      setImageUrls([])
+      toast.success("Map uploaded successfully!");
+      mapForm.reset();
+      setImageUrls([]);
     } catch (error) {
-      toast.error(`Error uploading map: ${error}`)
+      toast.error(`Error uploading map: ${error}`);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
       setTimeout(() => {
-        isSubmittingRef.current = false
-      }, 1000)
+        isSubmittingRef.current = false;
+      }, 1000);
     }
-  }
+  };
 
   const onSubmitBlock = async (values: BlockFormValues) => {
     if (isSubmittingRef.current) {
-      toast.info("Upload already in progress, please wait")
-      return
+      toast.info("Upload already in progress, please wait");
+      return;
     }
 
-    isSubmittingRef.current = true
-    setIsUploading(true)
+    isSubmittingRef.current = true;
+    setIsUploading(true);
 
     try {
       if (!user) {
-        toast.error("You must be signed in to upload blocks.")
-        return
+        toast.error("You must be signed in to upload blocks.");
+        return;
       }
 
-      const result = await uploadBlock(values)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      await search("", dispatch, () => {}, true)
+      if (!blockFile) {
+        toast.error("Please select a GBX file to upload.");
+        return;
+      }
 
-      toast.success("Block uploaded successfully!")
-      blockForm.reset()
-      setBlockImage("")
+      const result = await uploadBlock({
+        ...values,
+        file: blockFile,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await search("", dispatch, () => {}, true);
+
+      toast.success("Block uploaded successfully!");
+      blockForm.reset();
+      setBlockImage("");
+      setBlockFile(null);
     } catch (error) {
-      toast.error(`Error uploading block: ${error}`)
+      toast.error(`Error uploading block: ${error}`);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
       setTimeout(() => {
-        isSubmittingRef.current = false
-      }, 1000)
+        isSubmittingRef.current = false;
+      }, 1000);
     }
-  }
+  };
 
   return (
     <Card>
@@ -232,7 +267,10 @@ export function UploadForm() {
 
           <TabsContent value="maps">
             <Form {...mapForm}>
-              <form onSubmit={mapForm.handleSubmit(onSubmitMap)} className="space-y-6">
+              <form
+                onSubmit={mapForm.handleSubmit(onSubmitMap)}
+                className="space-y-6"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <FormField
@@ -256,10 +294,17 @@ export function UploadForm() {
                         <FormItem>
                           <FormLabel>
                             View Link <Separator orientation="vertical" />
-                            <span className=" text-muted-foreground">trackmania.io, mania.exchange, ...</span>
+                            <span className=" text-muted-foreground">
+                              trackmania.io, mania.exchange, ...
+                            </span>
                           </FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Enter map link" className="resize-none" rows={4} {...field} />
+                            <Textarea
+                              placeholder="Enter map link"
+                              className="resize-none"
+                              rows={4}
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -275,38 +320,52 @@ export function UploadForm() {
                             Tags <Separator orientation="vertical" />
                             <span className=" text-muted-foreground">
                               suggest more tags by opening an issue on the{" "}
-                              <a className="underline" href="https://github.com/tm-bank/app">
+                              <a
+                                className="underline"
+                                href="https://github.com/tm-bank/app"
+                              >
                                 github
                               </a>
                             </span>
                           </FormLabel>
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {Object.entries(VALID_TAGS).map(([category, tagList]) => (
-                              <div key={category} className="mb-2 mr-2">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="capitalize flex justify-between min-w-[120px]">
-                                      {category.replace("_", " ")}
-                                      <ChevronDown className="ml-2 h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent className="w-56 max-h-[300px] overflow-y-auto">
-                                    {tagList.map((tag) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={tag}
-                                        checked={field.value.includes(tag)}
-                                        onCheckedChange={() => onTagToggle(tag, field.value, field.onChange)}
-                                        onSelect={(e) => {
-                                          e.preventDefault()
-                                        }}
+                            {Object.entries(VALID_TAGS).map(
+                              ([category, tagList]) => (
+                                <div key={category} className="mb-2 mr-2">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className="capitalize flex justify-between min-w-[120px]"
                                       >
-                                        {tag}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            ))}
+                                        {category.replace("_", " ")}
+                                        <ChevronDown className="ml-2 h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56 max-h-[300px] overflow-y-auto">
+                                      {tagList.map((tag) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={tag}
+                                          checked={field.value.includes(tag)}
+                                          onCheckedChange={() =>
+                                            onTagToggle(
+                                              tag,
+                                              field.value,
+                                              field.onChange
+                                            )
+                                          }
+                                          onSelect={(e) => {
+                                            e.preventDefault();
+                                          }}
+                                        >
+                                          {tag}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              )
+                            )}
                           </div>
                           <FormMessage />
                         </FormItem>
@@ -320,15 +379,18 @@ export function UploadForm() {
                         <div className="flex flex-row gap-2">Images</div>
                         <br />
                         <span className="text-muted-foreground">
-                          The first image will show as the banner. These images must be uploaded to a CDN, such as
-                          Imgur.
+                          The first image will show as the banner. These images
+                          must be uploaded to a CDN, such as Imgur.
                         </span>
                       </div>
                       <div className="mt-1.5">
                         {imageUrls.length > 0 ? (
                           <div className="flex flex-wrap gap-4">
                             {imageUrls.map((url, idx) => (
-                              <div key={url} className="relative w-32 h-32 rounded-lg overflow-visible">
+                              <div
+                                key={url}
+                                className="relative w-32 h-32 rounded-lg overflow-visible"
+                              >
                                 <Button
                                   type="button"
                                   variant="destructive"
@@ -338,7 +400,10 @@ export function UploadForm() {
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
-                                <img src={url || "/placeholder.svg"} className="max-w-full max-h-full rounded" />
+                                <img
+                                  src={url || "/placeholder.svg"}
+                                  className="max-w-full max-h-full rounded"
+                                />
                               </div>
                             ))}
                             <Button
@@ -370,7 +435,9 @@ export function UploadForm() {
                             >
                               <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                               <span>
-                                <span className="font-semibold">Click to add image URL</span>
+                                <span className="font-semibold">
+                                  Click to add image URL
+                                </span>
                               </span>
                             </Button>
                             <Button
@@ -381,7 +448,9 @@ export function UploadForm() {
                             >
                               <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                               <span>
-                                <span className="font-semibold">Add Imgur Album</span>
+                                <span className="font-semibold">
+                                  Add Imgur Album
+                                </span>
                               </span>
                             </Button>
                           </div>
@@ -391,7 +460,11 @@ export function UploadForm() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full md:w-auto" disabled={imageUrls.length === 0 || isUploading}>
+                <Button
+                  type="submit"
+                  className="w-full md:w-auto"
+                  disabled={imageUrls.length === 0 || isUploading}
+                >
                   {isUploading ? "Uploading..." : "Upload Map"}
                 </Button>
               </form>
@@ -400,7 +473,10 @@ export function UploadForm() {
 
           <TabsContent value="blocks">
             <Form {...blockForm}>
-              <form onSubmit={blockForm.handleSubmit(onSubmitBlock)} className="space-y-6">
+              <form
+                onSubmit={blockForm.handleSubmit(onSubmitBlock)}
+                className="space-y-6"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <FormField
@@ -419,20 +495,6 @@ export function UploadForm() {
 
                     <FormField
                       control={blockForm.control}
-                      name="ixId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ItemExchange ID</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter IX ID" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={blockForm.control}
                       name="tags"
                       render={({ field }) => (
                         <FormItem>
@@ -440,39 +502,90 @@ export function UploadForm() {
                             Tags <Separator orientation="vertical" />
                             <span className=" text-muted-foreground">
                               suggest more tags by opening an issue on the{" "}
-                              <a className="underline" href="https://github.com/tm-bank/app">
+                              <a
+                                className="underline"
+                                href="https://github.com/tm-bank/app"
+                              >
                                 github
                               </a>
                             </span>
                           </FormLabel>
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {Object.entries(VALID_TAGS).map(([category, tagList]) => (
-                              <div key={category} className="mb-2 mr-2">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="capitalize flex justify-between min-w-[120px]">
-                                      {category.replace("_", " ")}
-                                      <ChevronDown className="ml-2 h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent className="w-56 max-h-[300px] overflow-y-auto">
-                                    {tagList.map((tag) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={tag}
-                                        checked={field.value.includes(tag)}
-                                        onCheckedChange={() => onTagToggle(tag, field.value, field.onChange)}
-                                        onSelect={(e) => {
-                                          e.preventDefault()
-                                        }}
+                            {Object.entries(VALID_TAGS).map(
+                              ([category, tagList]) => (
+                                <div key={category} className="mb-2 mr-2">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className="capitalize flex justify-between min-w-[120px]"
                                       >
-                                        {tag}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            ))}
+                                        {category.replace("_", " ")}
+                                        <ChevronDown className="ml-2 h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56 max-h-[300px] overflow-y-auto">
+                                      {tagList.map((tag) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={tag}
+                                          checked={field.value.includes(tag)}
+                                          onCheckedChange={() =>
+                                            onTagToggle(
+                                              tag,
+                                              field.value,
+                                              field.onChange
+                                            )
+                                          }
+                                          onSelect={(e) => {
+                                            e.preventDefault();
+                                          }}
+                                        >
+                                          {tag}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              )
+                            )}
                           </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={blockForm.control}
+                      name="file"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>
+                            Block GBX File
+                            <span className="text-muted-foreground ml-2">
+                              (required)
+                            </span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              accept=".gbx"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setBlockFile(file);
+                                  blockForm.setValue("file", file);
+                                } else {
+                                  setBlockFile(null);
+                                  blockForm.setValue("file", undefined);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          {blockFile && (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              Selected: {blockFile.name}
+                            </div>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -485,7 +598,8 @@ export function UploadForm() {
                         <div className="flex flex-row gap-2">Block Image</div>
                         <br />
                         <span className="text-muted-foreground">
-                          Add a screenshot or image of your block. This image must be uploaded to a CDN, such as Imgur.
+                          Add a screenshot or image of your block. This image
+                          must be uploaded to a CDN, such as Imgur.
                         </span>
                       </div>
                       <div className="mt-1.5">
@@ -517,7 +631,9 @@ export function UploadForm() {
                             >
                               <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                               <span>
-                                <span className="font-semibold">Click to add image URL</span>
+                                <span className="font-semibold">
+                                  Click to add image URL
+                                </span>
                               </span>
                             </Button>
                           </div>
@@ -527,7 +643,11 @@ export function UploadForm() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full md:w-auto" disabled={isUploading}>
+                <Button
+                  type="submit"
+                  className="w-full md:w-auto"
+                  disabled={isUploading}
+                >
                   {isUploading ? "Uploading..." : "Upload Block"}
                 </Button>
               </form>
@@ -536,5 +656,5 @@ export function UploadForm() {
         </Tabs>
       </CardContent>
     </Card>
-  )
+  );
 }

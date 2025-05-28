@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "~/providers/auth-provider";
-import { castVoteBlock, deleteBlock, deleteMap, getUser } from "~/store/db";
-import { useAppSelector } from "~/store/store";
+import { castVoteBlock, deleteBlock, getUser } from "~/store/db";
+import { useAppSelector, useAppDispatch } from "~/store/store";
 import type { Block, User } from "~/types";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Link } from "react-router";
@@ -14,12 +14,20 @@ import {
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { MoreVertical, Trash, Flag, ArrowBigUp, Download } from "lucide-react";
+import {
+  MoreVertical,
+  Trash,
+  Flag,
+  ArrowBigUp,
+  Download,
+  Pencil,
+} from "lucide-react";
 import { toast } from "sonner";
 import { EditForm } from "~/routes/dashboard/edit-form";
 import { sendDiscordWebhook } from "~/store/webhook";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { search } from "~/store/db";
 
 export function BlocksGrid() {
   const blocks = useAppSelector((state) => state.blocks);
@@ -57,6 +65,7 @@ export function BlockCard({
   if (!item) return <></>;
 
   const { user } = useAuth();
+  const dispatch = useAppDispatch();
   const [author, setAuthor] = useState<User>();
   const [isVoting, setIsVoting] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -67,7 +76,12 @@ export function BlockCard({
       if (author) setAuthor(author);
     }
     fetchAuthor();
-  }, []);
+  }, [item.authorId]);
+
+  // Helper to refresh blocks after delete/edit
+  const refreshBlocks = async () => {
+    await search("", dispatch, () => {}, true);
+  };
 
   return (
     <Card className="overflow-hidden" key={item.id}>
@@ -94,23 +108,29 @@ export function BlockCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {(user?.admin || user?.id === item.authorId) && (
-                  <DropdownMenuItem
-                    className="text-destructive"
-                    onClick={async (e) => {
-                      console.log("delete clicked");
-                      e.stopPropagation();
-                      e.preventDefault();
-                      if (user?.id === item.authorId || user?.admin) {
-                        const result = await deleteBlock(item.id);
-                        if (result) {
-                          toast.error("Successfully deleted block.");
+                  <>
+                    <DropdownMenuItem onClick={() => setShowEdit(true)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (user?.id === item.authorId || user?.admin) {
+                          const result = await deleteBlock(item.id);
+                          if (result) {
+                            toast.success("Successfully deleted block.");
+                            await refreshBlocks();
+                          }
                         }
-                      }
-                    }}
-                  >
-                    <Trash className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
+                      }}
+                    >
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </>
                 )}
                 {!dashboard && !user?.admin && (
                   <DropdownMenuItem
@@ -153,13 +173,11 @@ export function BlockCard({
         </div>
 
         <div className="relative aspect-square overflow-hidden items-center justify-center flex">
-          <Link to={`https://item.exchange/item/view/${item.ixId}`}>
-            <img
-              src={item.image || "placeholder.svg"}
-              className="object-cover w-full h-full transition-transform border rounded-xl hover:scale-105"
-              alt={item.title}
-            />
-          </Link>
+          <img
+            src={item.image || "placeholder.svg"}
+            className="object-cover w-full h-full transition-transform border rounded-xl hover:scale-105"
+            alt={item.title}
+          />
         </div>
       </CardContent>
 
@@ -202,6 +220,7 @@ export function BlockCard({
 
                       if (success) {
                         toast.success("Vote cast!");
+                        await refreshBlocks();
                       }
                     }}
                   >
@@ -224,8 +243,14 @@ export function BlockCard({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              if (item.ixId) {
-                window.open(`https://item.exchange/item/download/${item.ixId}`);
+              if (item.bucketFileName) {
+                window.open(
+                  `${
+                    import.meta.env.VITE_API_URL
+                  }/blocks/download/${encodeURIComponent(
+                    item.bucketFileName.replace(/^blocks\//, "")
+                  )}`
+                );
               }
             }}
           >
@@ -245,7 +270,13 @@ export function BlockCard({
       {showEdit && (
         <Dialog open={showEdit} onOpenChange={setShowEdit}>
           <DialogContent className=" max-w-full min-w-80 sm:max-w-fit">
-            <EditForm map={item} onSuccess={() => setShowEdit(false)} />
+            <EditForm
+              map={item}
+              onSuccess={async () => {
+                setShowEdit(false);
+                await refreshBlocks();
+              }}
+            />
           </DialogContent>
         </Dialog>
       )}

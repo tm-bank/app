@@ -297,21 +297,23 @@ export async function uploadBlock(data: {
   title: string;
   view_link?: string;
   tags: string[];
+  file?: File;
   image?: string;
-  ixId?: string;
 }) {
+  const formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("viewLink", data.view_link ?? "");
+  formData.append("tags", JSON.stringify(data.tags));
+
+  if (data.file) {
+    formData.append("file", data.file);
+  } else if (data.image) {
+    formData.append("image", data.image);
+  }
+
   const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      title: data.title,
-      viewLink: `https://item.exchange/item/view/${data.ixId}`,
-      tags: data.tags,
-      image: data.image,
-      ixId: data.ixId,
-    }),
+    body: formData,
     credentials: "include",
   });
 
@@ -329,26 +331,48 @@ export async function editBlock(
     title?: string;
     view_link?: string;
     tags?: string[];
+    file?: File;
     image?: string;
-    ixId?: string;
   }
 ) {
+  const formData = new FormData();
+  if (data.title) formData.append("title", data.title);
+  if (data.view_link) formData.append("viewLink", data.view_link);
+  if (data.tags) formData.append("tags", JSON.stringify(data.tags));
+
+  if (data.file) {
+    formData.append("file", data.file);
+  } else if (data.image) {
+    formData.append("image", data.image);
+  }
+
   const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/${blockId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    body: formData,
     credentials: "include",
-    body: JSON.stringify({
-      title: data.title,
-      viewLink: data.view_link,
-      tags: data.tags,
-      image: data.image,
-      ixId: data.ixId,
-    }),
   });
 
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error.error || "Failed to update block");
+  }
+
+  return await res.json();
+}
+
+export async function uploadBlockFile(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/blocks/upload`, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to upload file");
   }
 
   return await res.json();
