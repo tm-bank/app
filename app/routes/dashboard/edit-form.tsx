@@ -27,7 +27,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { search, editMap } from "~/store/db";
+import { search, editMap, editBlock } from "~/store/db";
 import { VALID_TAGS } from "~/store/tags";
 
 const formSchema = z.object({
@@ -145,7 +145,7 @@ export function EditForm({
 
     try {
       if (!user) {
-        toast.error("You must be signed in to edit maps.");
+        toast.error(`You must be signed in to edit ${isBlock ? "block" : "map"}s.`);
         return;
       }
 
@@ -155,14 +155,21 @@ export function EditForm({
         return;
       }
 
-      await editMap(map.id, values);
+      if (!isBlock) {
+        await editMap(map.id, values);
+      } else {
+        await editBlock(map.id, {
+          ...values,
+        });
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
       await search("", dispatch, () => {}, false);
 
-      toast.success("Map updated successfully!");
+      toast.success(`${isBlock ? "Block" : "Map"} updated successfully!`);
       if (onSuccess) onSuccess();
     } catch (error) {
-      toast.error(`Error editing map: ${error}`);
+      toast.error(`Error editing ${isBlock ? "block" : "map"}: ${error}`);
     } finally {
       setIsUploading(false);
       setTimeout(() => {
@@ -183,9 +190,9 @@ export function EditForm({
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Map Title</FormLabel>
+                      <FormLabel>${isBlock ? "Block" : "Map"} Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter map title" {...field} />
+                        <Input placeholder={`Enter ${isBlock ? "block" : "map"} title`} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
