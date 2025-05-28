@@ -170,7 +170,7 @@ export function BlockCard({
                   }}
                 >
                   <LinkIcon className="h-4 w-4 mr-2" />
-                  Copy Id
+                  Copy id
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -112,6 +112,36 @@ export function MapPage() {
                     />
                   </div>
                 )}
+                {map.blocks.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold">Blocks:</h3>
+                    <div className="flex flex-row items-center gap-2 mb-2 flex-wrap">
+                      {map.blocks.map((block) => (
+                        <Card key={block.id}>
+                          <CardHeader>
+                            <CardTitle>{block.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <img
+                              src={block.image ?? "placeholder.svg"}
+                              alt={block.title}
+                              className="w-full h-32 object-cover rounded-lg mb-2 hover:scale-105 cursor-pointer"
+                              onClick={() => {
+                                window.open(
+                                  `${
+                                    import.meta.env.VITE_API_URL
+                                  }/blocks/download/${encodeURIComponent(
+                                    block.bucketFileName.replace(/^blocks\//, "")
+                                  )}`
+                                );
+                              }}
+                            />
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
               <CardFooter>
                 <Button
